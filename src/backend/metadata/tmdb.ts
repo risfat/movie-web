@@ -186,7 +186,7 @@ export async function multiSearch(
 
 // The function to fetch the latest movies
 export async function getTopRatedMovies(
-  page = 1
+  page = 1,
 ): Promise<TMDBMovieListResponse> {
   try {
     // Call the TMDB API endpoint for fetching the latest movies
@@ -205,7 +205,7 @@ export async function getTopRatedMovies(
 
 // Function to fetch popular movies
 export async function getPopularMovies(
-  page = 1
+  page = 1,
 ): Promise<TMDBMovieListResponse> {
   try {
     // Call the TMDB API endpoint for fetching popular movies
@@ -219,7 +219,7 @@ export async function getPopularMovies(
   } catch (error) {
     console.error(
       `Error fetching popular movies from TMDB (/movie/popular):`,
-      error
+      error,
     );
     throw error; // You can handle the error according to your needs
   }
@@ -227,7 +227,7 @@ export async function getPopularMovies(
 
 // The function to fetch the latest Series
 export async function getOnAirSeries(
-  page = 1
+  page = 1,
 ): Promise<TMDBTVSeriesListResponse> {
   try {
     // Call the TMDB API endpoint for fetching the latest TV series
@@ -246,7 +246,7 @@ export async function getOnAirSeries(
 
 // Function to fetch popular TV series
 export async function getPopularTVSeries(
-  page = 1
+  page = 1,
 ): Promise<TMDBTVSeriesListResponse> {
   try {
     // Call the TMDB API endpoint for fetching popular TV series
@@ -265,7 +265,7 @@ export async function getPopularTVSeries(
 
 // Function to fetch Top Rated TV series
 export async function getTopRatedTVSeries(
-  page = 1
+  page = 1,
 ): Promise<TMDBTVSeriesListResponse> {
   try {
     // Call the TMDB API endpoint for fetching popular TV series
