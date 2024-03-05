@@ -20,11 +20,14 @@ export function useAuthData() {
   const loggedIn = !!useAuthStore((s) => s.account);
   const setAccount = useAuthStore((s) => s.setAccount);
   const removeAccount = useAuthStore((s) => s.removeAccount);
+  const setProxySet = useAuthStore((s) => s.setProxySet);
   const clearBookmarks = useBookmarkStore((s) => s.clear);
   const clearProgress = useProgressStore((s) => s.clear);
   const setTheme = useThemeStore((s) => s.setTheme);
   const setAppLanguage = useLanguageStore((s) => s.setLanguage);
-  const setCaptionLanguage = useSubtitleStore((s) => s.setLanguage);
+  const importSubtitleLanguage = useSubtitleStore(
+    (s) => s.importSubtitleLanguage,
+  );
 
   const replaceBookmarks = useBookmarkStore((s) => s.replaceBookmarks);
   const replaceItems = useProgressStore((s) => s.replaceItems);
@@ -34,7 +37,7 @@ export function useAuthData() {
       loginResponse: LoginResponse,
       user: UserResponse,
       session: SessionResponse,
-      seed: string
+      seed: string,
     ) => {
       const account = {
         token: loginResponse.token,
@@ -47,7 +50,7 @@ export function useAuthData() {
       setAccount(account);
       return account;
     },
-    [setAccount]
+    [setAccount],
   );
 
   const logout = useCallback(async () => {
@@ -62,7 +65,7 @@ export function useAuthData() {
       _session: SessionResponse,
       progress: ProgressResponse[],
       bookmarks: BookmarkResponse[],
-      settings: SettingsResponse
+      settings: SettingsResponse,
     ) => {
       replaceBookmarks(bookmarkResponsesToEntries(bookmarks));
       replaceItems(progressResponsesToEntries(progress));
@@ -72,20 +75,25 @@ export function useAuthData() {
       }
 
       if (settings.defaultSubtitleLanguage) {
-        setCaptionLanguage(settings.defaultSubtitleLanguage);
+        importSubtitleLanguage(settings.defaultSubtitleLanguage);
       }
 
       if (settings.applicationTheme) {
         setTheme(settings.applicationTheme);
+      }
+
+      if (settings.proxyUrls) {
+        setProxySet(settings.proxyUrls);
       }
     },
     [
       replaceBookmarks,
       replaceItems,
       setAppLanguage,
-      setCaptionLanguage,
+      importSubtitleLanguage,
       setTheme,
-    ]
+      setProxySet,
+    ],
   );
 
   return {

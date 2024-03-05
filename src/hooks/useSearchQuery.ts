@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { generatePath, useHistory, useParams } from "react-router-dom";
+import { generatePath, useNavigate, useParams } from "react-router-dom";
 
 function decode(query: string | null | undefined) {
   return query ? decodeURIComponent(query) : "";
@@ -8,9 +8,9 @@ function decode(query: string | null | undefined) {
 export function useSearchQuery(): [
   string,
   (inp: string, force?: boolean) => void,
-  () => void
+  () => void,
 ] {
-  const history = useHistory();
+  const navigate = useNavigate();
   const params = useParams<{ query: string }>();
   const [search, setSearch] = useState(decode(params.query));
 
@@ -22,18 +22,19 @@ export function useSearchQuery(): [
     setSearch(inp);
     if (!commitToUrl) return;
     if (inp.length === 0) {
-      history.replace("/");
+      navigate("/", { replace: true });
       return;
     }
-    history.replace(
+    navigate(
       generatePath("/browse/:query", {
         query: inp,
-      })
+      }),
+      { replace: true },
     );
   };
 
-  const onUnFocus = () => {
-    updateParams(search, true);
+  const onUnFocus = (newSearch?: string) => {
+    updateParams(newSearch ?? search, true);
   };
 
   return [search, updateParams, onUnFocus];

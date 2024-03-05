@@ -19,7 +19,7 @@ export function ColorOption(props: {
       type="button"
       className={classNames(
         "tabbable p-1.5 bg-video-context-buttonFocus rounded transition-colors duration-100",
-        props.active ? "bg-opacity-100" : "bg-opacity-0 cursor-pointer"
+        props.active ? "bg-opacity-100" : "bg-opacity-0 cursor-pointer",
       )}
       onClick={props.onClick}
     >
@@ -50,18 +50,18 @@ export function CaptionSetting(props: {
 
   const currentPercentage = (props.value - props.min) / (props.max - props.min);
   const commit = useCallback(
-    (percentage) => {
+    (percentage: number) => {
       const range = props.max - props.min;
       const newPercentage = Math.min(Math.max(percentage, 0), 1);
       props.onChange?.(props.min + range * newPercentage);
     },
-    [props]
+    [props],
   );
 
   const { dragging, dragPercentage, dragMouseDown } = useProgressBar(
     ref,
     commit,
-    true
+    true,
   );
 
   const [isFocused, setIsFocused] = useState(false);
@@ -112,8 +112,8 @@ export function CaptionSetting(props: {
                       0,
                       Math.min(
                         1,
-                        dragging ? dragPercentage / 100 : currentPercentage
-                      )
+                        dragging ? dragPercentage / 100 : currentPercentage,
+                      ),
                     ) * 100
                   }%`,
                 }}
@@ -141,7 +141,7 @@ export function CaptionSetting(props: {
                 const num = Number((e.target as HTMLInputElement).value);
                 if (!Number.isNaN(num))
                   props.onChange?.(
-                    (props.decimalsAllowed ?? 0) === 0 ? Math.round(num) : num
+                    (props.decimalsAllowed ?? 0) === 0 ? Math.round(num) : num,
                   );
               }}
               ref={inputRef}
@@ -163,13 +163,13 @@ export function CaptionSetting(props: {
               <button
                 className={classNames(
                   inputClasses,
-                  props.controlButtons ? "relative" : undefined
+                  props.controlButtons ? "relative" : undefined,
                 )}
                 type="button"
                 tabIndex={0}
               >
                 {textTransformer(
-                  props.value.toFixed(props.decimalsAllowed ?? 0)
+                  props.value.toFixed(props.decimalsAllowed ?? 0),
                 )}
               </button>
               {props.controlButtons ? (
@@ -180,7 +180,8 @@ export function CaptionSetting(props: {
                       onClick={
                         () =>
                           props.onChange?.(
-                            props.value - 1 / 10 ** (props.decimalsAllowed ?? 0)
+                            props.value -
+                              1 / 10 ** (props.decimalsAllowed ?? 0),
                           ) // Remove depending on the decimalsAllowed. If there's 1 decimal allowed, add 0.1. For 2, add 0.01, etc.
                       }
                       className={arrowButtonClasses}
@@ -194,7 +195,8 @@ export function CaptionSetting(props: {
                       onClick={
                         () =>
                           props.onChange?.(
-                            props.value + 1 / 10 ** (props.decimalsAllowed ?? 0)
+                            props.value +
+                              1 / 10 ** (props.decimalsAllowed ?? 0),
                           ) // Add depending on the decimalsAllowed. If there's 1 decimal allowed, add 0.1. For 2, add 0.01, etc.
                       }
                       className={arrowButtonClasses}
@@ -212,7 +214,7 @@ export function CaptionSetting(props: {
   );
 }
 
-export const colors = ["#ffffff", "#80b1fa", "#e2e535"];
+export const colors = ["#ffffff", "#b0b0b0", "#80b1fa", "#e2e535"];
 
 export function CaptionSettingsView({ id }: { id: string }) {
   const { t } = useTranslation();
@@ -227,11 +229,11 @@ export function CaptionSettingsView({ id }: { id: string }) {
   return (
     <>
       <Menu.BackLink onClick={() => router.navigate("/captions")}>
-        Custom captions
+        {t("player.menus.subtitles.settings.backlink")}
       </Menu.BackLink>
       <Menu.Section className="space-y-6">
         <CaptionSetting
-          label={t("player.menus.captions.settings.delay")}
+          label={t("player.menus.subtitles.settings.delay")}
           max={10}
           min={-10}
           onChange={(v) => setDelay(v)}
@@ -242,7 +244,7 @@ export function CaptionSettingsView({ id }: { id: string }) {
         />
         <div className="flex justify-between items-center">
           <Menu.FieldTitle>
-            {t("player.menus.captions.settings.fixCapitals")}
+            {t("player.menus.subtitles.settings.fixCapitals")}
           </Menu.FieldTitle>
           <div className="flex justify-center items-center">
             <Toggle
@@ -253,7 +255,7 @@ export function CaptionSettingsView({ id }: { id: string }) {
         </div>
         <Menu.Divider />
         <CaptionSetting
-          label={t("settings.captions.backgroundLabel")}
+          label={t("settings.subtitles.backgroundLabel")}
           max={100}
           min={0}
           onChange={(v) => updateStyling({ backgroundOpacity: v / 100 })}
@@ -261,7 +263,7 @@ export function CaptionSettingsView({ id }: { id: string }) {
           textTransformer={(s) => `${s}%`}
         />
         <CaptionSetting
-          label={t("settings.captions.textSizeLabel")}
+          label={t("settings.subtitles.textSizeLabel")}
           max={200}
           min={1}
           textTransformer={(s) => `${s}%`}
@@ -269,7 +271,9 @@ export function CaptionSettingsView({ id }: { id: string }) {
           value={styling.size * 100}
         />
         <div className="flex justify-between items-center">
-          <Menu.FieldTitle>{t("settings.captions.colorLabel")}</Menu.FieldTitle>
+          <Menu.FieldTitle>
+            {t("settings.subtitles.colorLabel")}
+          </Menu.FieldTitle>
           <div className="flex justify-center items-center">
             {colors.map((v) => (
               <ColorOption

@@ -1,11 +1,19 @@
 import { useTranslation } from "react-i18next";
-import { useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAsync } from "react-use";
 import type { AsyncReturnType } from "type-fest";
 
+import { isAllowedExtensionVersion } from "@/backend/extension/compatibility";
+import { extensionInfo, sendPage } from "@/backend/extension/messaging";
+import {
+  fetchMetadata,
+  setCachedMetadata,
+} from "@/backend/helpers/providerApi";
 import { DetailedMeta, getMetaFromId } from "@/backend/metadata/getmeta";
 import { decodeTMDBId } from "@/backend/metadata/tmdb";
 import { MWMediaType } from "@/backend/metadata/types/mw";
+import { getLoadbalancedProviderApiUrl } from "@/backend/providers/fetchers";
+import { getProviders } from "@/backend/providers/providers";
 import { Button } from "@/components/buttons/Button";
 import { Icons } from "@/components/Icon";
 import { IconPill } from "@/components/layout/IconPill";
@@ -33,11 +41,36 @@ export function MetaPart(props: MetaPartProps) {
     episode?: string;
     season?: string;
   }>();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { error, value, loading } = useAsync(async () => {
+    const info = await extensionInfo();
+    const isValidExtension =
+      info?.success && isAllowedExtensionVersion(info.version) && info.allowed;
+
+    if (isValidExtension) {
+      if (!info.hasPermission) throw new Error("extension-no-permission");
+    }
+
+    // use api metadata or providers metadata
+    const providerApiUrl = getLoadbalancedProviderApiUrl();
+    if (providerApiUrl && !isValidExtension) {
+      try {
+        await fetchMetadata(providerApiUrl);
+      } catch (err) {
+        throw new Error("failed-api-metadata");
+      }
+    } else {
+      setCachedMetadata([
+        ...getProviders().listSources(),
+        ...getProviders().listEmbeds(),
+      ]);
+    }
+
+    // get media meta data
     let data: ReturnType<typeof decodeTMDBId> = null;
     try {
+      if (!params.media) throw new Error("no media params");
       data = decodeTMDBId(params.media);
     } catch {
       // error dont matter, itll just be a 404
@@ -61,7 +94,7 @@ export function MetaPart(props: MetaPartProps) {
     let epId = params.episode;
     if (meta.meta.type === MWMediaType.SERIES) {
       let ep = meta.meta.seasonData.episodes.find(
-        (v) => v.id === params.episode
+        (v) => v.id === params.episode,
       );
       if (!ep) ep = meta.meta.seasonData.episodes[0];
       epId = ep.id;
@@ -69,25 +102,73 @@ export function MetaPart(props: MetaPartProps) {
         params.season !== meta.meta.seasonData.id ||
         params.episode !== ep.id
       ) {
-        history.replace(
-          `/media/${params.media}/${meta.meta.seasonData.id}/${ep.id}`
-        );
+        navigate(`/media/${params.media}/${meta.meta.seasonData.id}/${ep.id}`, {
+          replace: true,
+        });
       }
     }
 
     props.onGetMeta?.(meta, epId);
   }, []);
 
+  if (error && error.message === "extension-no-permission") {
+    return (
+      <ErrorLayout>
+        <ErrorContainer>
+          <IconPill icon={Icons.WAND}>
+            {t("player.metadata.extensionPermission.badge")}
+          </IconPill>
+          <Title>{t("player.metadata.extensionPermission.title")}</Title>
+          <Paragraph>{t("player.metadata.extensionPermission.text")}</Paragraph>
+          <Button
+            onClick={() => {
+              sendPage({
+                page: "PermissionGrant",
+                redirectUrl: window.location.href,
+              });
+            }}
+            theme="purple"
+            padding="md:px-12 p-2.5"
+            className="mt-6"
+          >
+            {t("player.metadata.extensionPermission.button")}
+          </Button>
+        </ErrorContainer>
+      </ErrorLayout>
+    );
+  }
+
   if (error && error.message === "dmca") {
     return (
       <ErrorLayout>
         <ErrorContainer>
-          <IconPill icon={Icons.DRAGON}>Removed</IconPill>
-          <Title>Media has been removed</Title>
-          <Paragraph>
-            This media is no longer available due to a takedown notice or
-            copyright claim.
-          </Paragraph>
+          <IconPill icon={Icons.DRAGON}>
+            {t("player.metadata.dmca.badge")}
+          </IconPill>
+          <Title>{t("player.metadata.dmca.title")}</Title>
+          <Paragraph>{t("player.metadata.dmca.text")}</Paragraph>
+          <Button
+            href="/"
+            theme="purple"
+            padding="md:px-12 p-2.5"
+            className="mt-6"
+          >
+            {t("player.metadata.failed.homeButton")}
+          </Button>
+        </ErrorContainer>
+      </ErrorLayout>
+    );
+  }
+
+  if (error && error.message === "failed-api-metadata") {
+    return (
+      <ErrorLayout>
+        <ErrorContainer>
+          <IconPill icon={Icons.WAND}>
+            {t("player.metadata.failed.badge")}
+          </IconPill>
+          <Title>{t("player.metadata.api.text")}</Title>
+          <Paragraph>{t("player.metadata.api.title")}</Paragraph>
           <Button
             href="/"
             theme="purple"

@@ -19,6 +19,8 @@ import { PlayerMeta } from "@/stores/player/slices/source";
 import { usePlayerStore } from "@/stores/player/store";
 import { useProgressStore } from "@/stores/progress";
 
+import { hasAired } from "../utils/aired";
+
 function CenteredText(props: { children: React.ReactNode }) {
   return (
     <div className="h-full w-full flex justify-center items-center p-8 text-center">
@@ -54,7 +56,7 @@ function SeasonsView({
   const meta = usePlayerStore((s) => s.meta);
   const [loadingState, seasons] = useSeasonData(
     meta?.tmdbId ?? "",
-    selectedSeason
+    selectedSeason,
   );
 
   let content: ReactNode = null;
@@ -120,7 +122,7 @@ function EpisodesView({
       // player already switches route after meta change
       router.close(true);
     },
-    [setPlayerMeta, loadingState, router, onChange]
+    [setPlayerMeta, loadingState, router, onChange],
   );
 
   if (!meta?.tmdbId) return null;
@@ -135,6 +137,9 @@ function EpisodesView({
       <CenteredText>{t("player.menus.episodes.loadingList")}</CenteredText>
     );
   else if (loadingState.value) {
+    const hasUnairedEpisodes = loadingState.value.season.episodes.some(
+      (ep) => !hasAired(ep.air_date),
+    );
     content = (
       <Menu.ScrollToActiveSection className="pb-6">
         {loadingState.value.season.episodes.length === 0 ? (
@@ -165,17 +170,27 @@ function EpisodesView({
               key={ep.id}
               onClick={() => playEpisode(ep.id)}
               active={ep.id === meta?.episode?.tmdbId}
-              clickable
+              clickable={hasAired(ep.air_date)}
               rightSide={rightSide}
             >
               <Menu.LinkTitle>
-                <div className="text-left flex items-center space-x-3">
+                <div
+                  className={classNames(
+                    "text-left flex items-center space-x-3 text-video-context-type-main",
+                    hasAired(ep.air_date) || ep.id === meta?.episode?.tmdbId
+                      ? ""
+                      : "text-opacity-25",
+                  )}
+                >
                   <span
                     className={classNames(
                       "p-0.5 px-2 rounded inline bg-video-context-hoverColor",
                       ep.id === meta?.episode?.tmdbId
                         ? "text-white bg-opacity-100"
-                        : "bg-opacity-50"
+                        : "bg-opacity-50",
+                      hasAired(ep.air_date) || ep.id === meta?.episode?.tmdbId
+                        ? ""
+                        : "!bg-opacity-25",
                     )}
                   >
                     {t("player.menus.episodes.episodeBadge", {
@@ -188,6 +203,9 @@ function EpisodesView({
             </Menu.Link>
           );
         })}
+        {hasUnairedEpisodes ? (
+          <p>{t("player.menus.episodes.unairedEpisodes")}</p>
+        ) : null}
       </Menu.ScrollToActiveSection>
     );
   }
@@ -226,7 +244,7 @@ function EpisodesOverlay({
       setSelectedSeason(seasonId);
       router.navigate("/episodes");
     },
-    [router]
+    [router],
   );
 
   return (

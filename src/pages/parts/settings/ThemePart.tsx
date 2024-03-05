@@ -6,19 +6,28 @@ import { Heading1 } from "@/components/utils/Text";
 
 const availableThemes = [
   {
+    id: "default",
+    selector: "theme-default",
+    key: "settings.appearance.themes.default",
+  },
+  {
     id: "blue",
+    selector: "theme-blue",
     key: "settings.appearance.themes.blue",
   },
   {
     id: "teal",
+    selector: "theme-teal",
     key: "settings.appearance.themes.teal",
   },
   {
     id: "red",
+    selector: "theme-red",
     key: "settings.appearance.themes.red",
   },
   {
     id: "gray",
+    selector: "theme-gray",
     key: "settings.appearance.themes.gray",
   },
 ];
@@ -26,6 +35,7 @@ const availableThemes = [
 function ThemePreview(props: {
   selector?: string;
   active?: boolean;
+  inUse?: boolean;
   name: string;
   onClick?: () => void;
 }) {
@@ -44,7 +54,7 @@ function ThemePreview(props: {
           "tabbable scroll-mt-32 w-full h-32 relative rounded-lg border bg-gradient-to-br from-themePreview-primary/20 to-themePreview-secondary/10 bg-clip-content transition-colors duration-150",
           props.active
             ? "border-themePreview-primary"
-            : "border-transparent group-hover:border-white/20"
+            : "border-transparent group-hover:border-white/20",
         )}
       >
         {/* Dots */}
@@ -57,7 +67,7 @@ function ThemePreview(props: {
           icon={Icons.CHECKMARK}
           className={classNames(
             "absolute top-3 right-3 text-xs text-white transition-opacity duration-150",
-            props.active ? "opacity-100" : "opacity-0"
+            props.active ? "opacity-100" : "opacity-0",
           )}
         />
         {/* Mini movie-web. So Kawaiiiii! */}
@@ -104,8 +114,8 @@ function ThemePreview(props: {
         <span className="font-medium text-white">{props.name}</span>
         <span
           className={classNames(
-            "inline-block px-3 text-sm transition-opacity duration-150 rounded-full bg-[#27182F] text-white",
-            props.active ? "opacity-100" : "opacity-0 pointer-events-none"
+            "inline-block px-3 py-1 leading-tight text-sm transition-opacity duration-150 rounded-full bg-pill-activeBackground text-white/85",
+            props.inUse ? "opacity-100" : "opacity-0 pointer-events-none",
           )}
         >
           {t("settings.appearance.activeTheme")}
@@ -116,8 +126,9 @@ function ThemePreview(props: {
 }
 
 export function ThemePart(props: {
-  active: string | null;
-  setTheme: (theme: string | null) => void;
+  active: string;
+  inUse: string;
+  setTheme: (theme: string) => void;
 }) {
   const { t } = useTranslation();
 
@@ -125,17 +136,11 @@ export function ThemePart(props: {
     <div>
       <Heading1 border>{t("settings.appearance.title")}</Heading1>
       <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-6 max-w-[700px]">
-        {/* default theme */}
-        <ThemePreview
-          name={t("settings.appearance.themes.default")}
-          selector="theme-default"
-          active={props.active === null}
-          onClick={() => props.setTheme(null)}
-        />
         {availableThemes.map((v) => (
           <ThemePreview
-            selector={`theme-${v.id}`}
+            selector={v.selector}
             active={props.active === v.id}
+            inUse={props.inUse === v.id}
             name={t(v.key)}
             key={v.id}
             onClick={() => props.setTheme(v.id)}

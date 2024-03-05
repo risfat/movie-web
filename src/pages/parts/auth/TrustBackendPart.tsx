@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAsync } from "react-use";
 
 import { MetaResponse, getBackendMeta } from "@/backend/accounts/meta";
@@ -14,18 +14,21 @@ import {
 import { Loading } from "@/components/layout/Loading";
 import { MwLink } from "@/components/text/Link";
 import { useBackendUrl } from "@/hooks/auth/useBackendUrl";
-import { conf } from "@/setup/config";
 
 interface TrustBackendPartProps {
   onNext?: (meta: MetaResponse) => void;
 }
 
 export function TrustBackendPart(props: TrustBackendPartProps) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const backendUrl = useBackendUrl();
-  const hostname = useMemo(() => new URL(backendUrl).hostname, [backendUrl]);
+  const hostname = useMemo(
+    () => (backendUrl ? new URL(backendUrl).hostname : undefined),
+    [backendUrl],
+  );
   const result = useAsync(() => {
-    return getBackendMeta(conf().BACKEND_URL);
+    if (!backendUrl) return Promise.resolve(null);
+    return getBackendMeta(backendUrl);
   }, [backendUrl]);
   const { t } = useTranslation();
 
@@ -51,33 +54,52 @@ export function TrustBackendPart(props: TrustBackendPartProps) {
   return (
     <LargeCard>
       <LargeCardText
-        title={t("auth.trust.title")}
+        title={hostname ? t("auth.trust.title") : t("auth.trust.noHostTitle")}
         icon={<Icon icon={Icons.CIRCLE_EXCLAMATION} />}
       >
-        <Trans i18nKey="auth.trust.host">
-          <span className="text-white">{{ hostname }}</span>
-        </Trans>
+        {hostname ? (
+          <Trans
+            i18nKey="auth.trust.host"
+            values={{
+              hostname,
+            }}
+          >
+            <span className="text-white" />
+          </Trans>
+        ) : (
+          <p>{t("auth.trust.noHost")}</p>
+        )}
       </LargeCardText>
 
-      <div className="border border-authentication-border rounded-xl px-4 py-8 flex flex-col items-center space-y-2 my-8">
-        {cardContent}
-      </div>
-      <LargeCardButtons>
-        <Button theme="secondary" onClick={() => history.push("/")}>
-          {t("auth.trust.no")}
-        </Button>
-        <Button
-          theme="purple"
-          onClick={() => result.value && props.onNext?.(result.value)}
-        >
-          {t("auth.trust.yes")}
-        </Button>
-      </LargeCardButtons>
-      <p className="text-center mt-6">
-        <Trans i18nKey="auth.hasAccount">
-          <MwLink to="/login">.</MwLink>
-        </Trans>
-      </p>
+      {hostname ? (
+        <>
+          <div className="border border-authentication-border rounded-xl px-4 py-8 flex flex-col items-center space-y-2 my-8">
+            {cardContent}
+          </div>
+          <LargeCardButtons>
+            <Button theme="secondary" onClick={() => navigate("/")}>
+              {t("auth.trust.no")}
+            </Button>
+            <Button
+              theme="purple"
+              onClick={() => result.value && props.onNext?.(result.value)}
+            >
+              {t("auth.trust.yes")}
+            </Button>
+          </LargeCardButtons>
+          <p className="text-center mt-6">
+            <Trans i18nKey="auth.hasAccount">
+              <MwLink to="/login">.</MwLink>
+            </Trans>
+          </p>
+        </>
+      ) : (
+        <LargeCardButtons>
+          <Button theme="purple" onClick={() => navigate("/")}>
+            {t("auth.trust.no")}
+          </Button>
+        </LargeCardButtons>
+      )}
     </LargeCard>
   );
 }

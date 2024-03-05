@@ -21,16 +21,35 @@ export const useThemeStore = create(
     })),
     {
       name: "__MW::theme",
-    }
-  )
+    },
+  ),
+);
+
+export interface PreviewThemeStore {
+  previewTheme: string | null;
+  setPreviewTheme(v: string | null): void;
+}
+
+export const usePreviewThemeStore = create(
+  immer<PreviewThemeStore>((set) => ({
+    previewTheme: null,
+    setPreviewTheme(v) {
+      set((s) => {
+        s.previewTheme = v;
+      });
+    },
+  })),
 );
 
 export function ThemeProvider(props: {
   children?: ReactNode;
   applyGlobal?: boolean;
 }) {
+  const previewTheme = usePreviewThemeStore((s) => s.previewTheme);
   const theme = useThemeStore((s) => s.theme);
-  const themeSelector = theme ? `theme-${theme}` : undefined;
+
+  const themeToDisplay = previewTheme ?? theme;
+  const themeSelector = themeToDisplay ? `theme-${themeToDisplay}` : undefined;
 
   return (
     <div className={themeSelector}>

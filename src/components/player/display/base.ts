@@ -2,6 +2,11 @@ import fscreen from "fscreen";
 import Hls, { Level } from "hls.js";
 
 import {
+  RULE_IDS,
+  isExtensionActiveCached,
+  setDomainRule,
+} from "@/backend/extension/messaging";
+import {
   DisplayInterface,
   DisplayInterfaceEvents,
 } from "@/components/player/display/displayInterface";
@@ -12,6 +17,7 @@ import {
   SourceQuality,
   getPreferredQuality,
 } from "@/stores/player/utils/qualities";
+import { processCdnLink } from "@/utils/cdn";
 import {
   canChangeVolume,
   canFullscreen,
@@ -30,16 +36,17 @@ const levelConversionMap: Record<number, SourceQuality> = {
   480: "480",
 };
 
-function hlsLevelToQuality(level: Level): SourceQuality | null {
-  return levelConversionMap[level.height] ?? null;
+function hlsLevelToQuality(level?: Level): SourceQuality | null {
+  return levelConversionMap[level?.height ?? 0] ?? null;
 }
 
 function qualityToHlsLevel(quality: SourceQuality): number | null {
   const found = Object.entries(levelConversionMap).find(
-    (entry) => entry[1] === quality
+    (entry) => entry[1] === quality,
   );
   return found ? +found[0] : null;
 }
+
 function hlsLevelsToQualities(levels: Level[]): SourceQuality[] {
   return levels
     .map((v) => hlsLevelToQuality(v))
@@ -83,7 +90,7 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
       });
       if (availableQuality) {
         const levelIndex = hls.levels.findIndex(
-          (v) => v.height === qualityToHlsLevel(availableQuality)
+          (v) => v.height === qualityToHlsLevel(availableQuality),
         );
         if (levelIndex !== -1) {
           hls.currentLevel = levelIndex;
@@ -101,7 +108,7 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
   function setupSource(vid: HTMLVideoElement, src: LoadableSource) {
     if (src.type === "hls") {
       if (canPlayHlsNatively(vid)) {
-        vid.src = src.url;
+        vid.src = processCdnLink(src.url);
         vid.currentTime = startAt;
         return;
       }
@@ -129,7 +136,7 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
         });
         hls.on(Hls.Events.ERROR, (event, data) => {
           console.error("HLS error", data);
-          if (data.fatal) {
+          if (data.fatal && src?.url === data.frag?.baseurl) {
             emit("error", {
               message: data.error.message,
               stackTrace: data.error.stack,
@@ -142,6 +149,24 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
           if (!hls) return;
           reportLevels();
           setupQualityForHls();
+
+          if (isExtensionActiveCached()) {
+            hls.on(Hls.Events.LEVEL_LOADED, async (_, data) => {
+              const chunkUrlsDomains = data.details.fragments.map(
+                (v) => new URL(v.url).hostname,
+              );
+              const chunkUrls = [...new Set(chunkUrlsDomains)];
+
+              await setDomainRule({
+                ruleId: RULE_IDS.SET_DOMAINS_HLS,
+                targetDomains: chunkUrls,
+                requestHeaders: {
+                  ...src.preferredHeaders,
+                  ...src.headers,
+                },
+              });
+            });
+          }
         });
         hls.on(Hls.Events.LEVEL_SWITCHED, () => {
           if (!hls) return;
@@ -151,12 +176,12 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
       }
 
       hls.attachMedia(vid);
-      hls.loadSource(src.url);
+      hls.loadSource(processCdnLink(src.url));
       vid.currentTime = startAt;
       return;
     }
 
-    vid.src = src.url;
+    vid.src = processCdnLink(src.url);
     vid.currentTime = startAt;
   }
 
@@ -182,10 +207,10 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
     videoElement.addEventListener("canplay", () => emit("loading", false));
     videoElement.addEventListener("waiting", () => emit("loading", true));
     videoElement.addEventListener("volumechange", () =>
-      emit("volumechange", videoElement?.muted ? 0 : videoElement?.volume ?? 0)
+      emit("volumechange", videoElement?.muted ? 0 : videoElement?.volume ?? 0),
     );
     videoElement.addEventListener("timeupdate", () =>
-      emit("time", videoElement?.currentTime ?? 0)
+      emit("time", videoElement?.currentTime ?? 0),
     );
     videoElement.addEventListener("loadedmetadata", () => {
       if (
@@ -202,7 +227,7 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
       if (videoElement)
         emit(
           "buffered",
-          handleBuffered(videoElement.currentTime, videoElement.buffered)
+          handleBuffered(videoElement.currentTime, videoElement.buffered),
         );
     });
     videoElement.addEventListener("webkitendfullscreen", () => {
@@ -216,7 +241,7 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
         if (e.availability === "available") {
           emit("canairplay", true);
         }
-      }
+      },
     );
     videoElement.addEventListener("ratechange", () => {
       if (videoElement) emit("playbackrate", videoElement.playbackRate);
@@ -368,7 +393,7 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
         webkitPlayer.webkitSetPresentationMode(
           webkitPlayer.webkitPresentationMode === "picture-in-picture"
             ? "inline"
-            : "picture-in-picture"
+            : "picture-in-picture",
         );
       }
       if (canPictureInPicture()) {

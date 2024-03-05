@@ -8,26 +8,36 @@ export function useCaptions() {
   const setLanguage = useSubtitleStore((s) => s.setLanguage);
   const enabled = useSubtitleStore((s) => s.enabled);
   const resetSubtitleSpecificSettings = useSubtitleStore(
-    (s) => s.resetSubtitleSpecificSettings
+    (s) => s.resetSubtitleSpecificSettings,
   );
   const setCaption = usePlayerStore((s) => s.setCaption);
   const lastSelectedLanguage = useSubtitleStore((s) => s.lastSelectedLanguage);
   const captionList = usePlayerStore((s) => s.captionList);
 
-  const selectLanguage = useCallback(
-    async (language: string) => {
-      const caption = captionList.find((v) => v.language === language);
+  const selectCaptionById = useCallback(
+    async (captionId: string) => {
+      const caption = captionList.find((v) => v.id === captionId);
       if (!caption) return;
       const srtData = await downloadCaption(caption);
       setCaption({
+        id: caption.id,
         language: caption.language,
         srtData,
         url: caption.url,
       });
       resetSubtitleSpecificSettings();
-      setLanguage(language);
+      setLanguage(caption.language);
     },
-    [setLanguage, captionList, setCaption, resetSubtitleSpecificSettings]
+    [setLanguage, captionList, setCaption, resetSubtitleSpecificSettings],
+  );
+
+  const selectLanguage = useCallback(
+    async (language: string) => {
+      const caption = captionList.find((v) => v.language === language);
+      if (!caption) return;
+      return selectCaptionById(caption.id);
+    },
+    [captionList, selectCaptionById],
   );
 
   const disable = useCallback(async () => {
@@ -56,5 +66,6 @@ export function useCaptions() {
     selectLastUsedLanguage,
     toggleLastUsed,
     selectLastUsedLanguageIfEnabled,
+    selectCaptionById,
   };
 }

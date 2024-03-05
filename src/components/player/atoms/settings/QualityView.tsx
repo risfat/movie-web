@@ -22,6 +22,7 @@ const alwaysVisibleQualities: Record<SourceQuality, boolean> = {
   "480": true,
   "720": true,
   "1080": true,
+  "4k": false,
 };
 
 function useIsIosHls() {
@@ -43,7 +44,7 @@ export function QualityView({ id }: { id: string }) {
   const currentQuality = usePlayerStore((s) => s.currentQuality);
   const switchQuality = usePlayerStore((s) => s.switchQuality);
   const enableAutomaticQuality = usePlayerStore(
-    (s) => s.enableAutomaticQuality
+    (s) => s.enableAutomaticQuality,
   );
   const setAutomaticQuality = useQualityStore((s) => s.setAutomaticQuality);
   const setLastChosenQuality = useQualityStore((s) => s.setLastChosenQuality);
@@ -56,7 +57,7 @@ export function QualityView({ id }: { id: string }) {
       switchQuality(q);
       router.close();
     },
-    [router, switchQuality, setLastChosenQuality, setAutomaticQuality]
+    [router, switchQuality, setLastChosenQuality, setAutomaticQuality],
   );
 
   const changeAutomatic = useCallback(() => {

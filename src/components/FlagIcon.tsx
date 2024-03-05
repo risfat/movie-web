@@ -1,42 +1,32 @@
 import classNames from "classnames";
+
+import { getCountryCodeForLocale } from "@/utils/language";
 import "flag-icons/css/flag-icons.min.css";
 
 export interface FlagIconProps {
-  countryCode?: string;
+  country?: string;
+  langCode?: string;
 }
 
-// Country code overrides
-const countryOverrides: Record<string, string> = {
-  en: "gb",
-  cs: "cz",
-  el: "gr",
-  fa: "ir",
-  ko: "kr",
-  he: "il",
-  ze: "cn",
-  ar: "sa",
-  ja: "jp",
-  bs: "ba",
-  vi: "vn",
-  zh: "cn",
-  sl: "si",
-  sv: "se",
-};
-
 export function FlagIcon(props: FlagIconProps) {
-  let countryCode =
-    (props.countryCode || "")?.split("-").pop()?.toLowerCase() || "";
-  if (countryOverrides[countryCode])
-    countryCode = countryOverrides[countryCode];
+  let countryCode: string | null = props.country ?? null;
+  if (props.langCode) countryCode = getCountryCodeForLocale(props.langCode);
 
-  if (countryCode === "pirate")
+  if (props.langCode === "tok")
     return (
-      <div className="w-8 h-6 rounded bg-[#2E3439] flex justify-center items-center">
-        <img src="/skull.svg" className="w-4 h-4" />
+      <div className="w-8 h-6 rounded bg-[#c8e1ed] flex justify-center items-center">
+        <img src="/flags/tokiPona.svg" className="w-7 h-5" />
       </div>
     );
 
-  if (countryCode === "minion")
+  if (props.langCode === "pirate")
+    return (
+      <div className="w-8 h-6 rounded bg-[#2E3439] flex justify-center items-center">
+        <img src="/flags/skull.svg" className="w-4 h-4" />
+      </div>
+    );
+
+  if (props.langCode === "minion")
     return (
       <div className="w-8 h-6 rounded bg-[#ffff1a] flex justify-center items-center">
         <div className="w-4 h-4 border-2 border-gray-500 rounded-full bg-white flex justify-center items-center">
@@ -47,11 +37,23 @@ export function FlagIcon(props: FlagIconProps) {
       </div>
     );
 
+  // Galicia - Not a country (Is a region of Spain) so have to add the flag manually
+  if (props.langCode === "gl-ES")
+    return (
+      <div className="w-8 h-6 rounded bg-[#2E3439] flex justify-center items-center">
+        <img src="/flags/galicia.svg" className="rounded" />
+      </div>
+    );
+
+  let backgroundClass = "bg-video-context-flagBg";
+  if (countryCode === "np") backgroundClass = "bg-white";
+
   return (
     <span
       className={classNames(
-        "!w-8 h-6 rounded overflow-hidden bg-video-context-flagBg bg-cover bg-center block fi",
-        props.countryCode ? `fi-${countryCode}` : undefined
+        "!w-8 min-w-8 h-6 rounded overflow-hidden bg-cover bg-center block fi",
+        backgroundClass,
+        countryCode ? `fi-${countryCode}` : undefined,
       )}
     />
   );

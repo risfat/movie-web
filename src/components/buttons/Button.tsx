@@ -1,13 +1,15 @@
 import classNames from "classnames";
 import { ReactNode, useCallback } from "react";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import { Icon, Icons } from "@/components/Icon";
 import { Spinner } from "@/components/layout/Spinner";
 
 interface Props {
   icon?: Icons;
-  onClick?: () => void;
+  onClick?: (
+    event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement, MouseEvent>,
+  ) => void;
   children?: ReactNode;
   theme?: "white" | "purple" | "secondary" | "danger";
   padding?: string;
@@ -19,13 +21,27 @@ interface Props {
 }
 
 export function Button(props: Props) {
-  const history = useHistory();
+  const navigate = useNavigate();
   const { onClick, href, loading } = props;
-  const cb = useCallback(() => {
-    if (loading) return;
-    if (href) history.push(href);
-    else onClick?.();
-  }, [onClick, href, history, loading]);
+  const cb = useCallback(
+    (
+      event: React.MouseEvent<
+        HTMLAnchorElement | HTMLButtonElement,
+        MouseEvent
+      >,
+    ) => {
+      if (loading) return;
+      if (href && !onClick) {
+        event.preventDefault();
+        if (!href.includes("http")) {
+          navigate(href);
+        } else {
+          window.open(href, "_blank", "noreferrer");
+        }
+      } else onClick?.(event);
+    },
+    [loading, href, onClick, navigate],
+  );
 
   let colorClasses = "bg-white hover:bg-gray-200 text-black";
   if (props.theme === "purple")
@@ -41,7 +57,7 @@ export function Button(props: Props) {
     props.padding ?? "px-4 py-3",
     props.className,
     colorClasses,
-    props.disabled ? "cursor-not-allowed bg-opacity-60 text-opacity-60" : null
+    props.disabled ? "!cursor-not-allowed bg-opacity-60 text-opacity-60" : null,
   );
 
   if (props.disabled)
@@ -49,7 +65,7 @@ export function Button(props: Props) {
       .split(" ")
       .filter(
         (className) =>
-          !className.startsWith("hover:") && !className.startsWith("active:")
+          !className.startsWith("hover:") && !className.startsWith("active:"),
       )
       .join(" ");
 
@@ -80,6 +96,7 @@ export function Button(props: Props) {
         target="_blank"
         rel="noreferrer"
         download={props.download}
+        onClick={cb}
       >
         {content}
       </a>
@@ -120,7 +137,7 @@ export function ButtonPlain(props: ButtonPlainProps) {
     "cursor-pointer inline-flex items-center justify-center rounded-lg font-medium transition-[transform,background-color] duration-100 active:scale-105 md:px-8",
     "px-4 py-3",
     props.className,
-    colorClasses
+    colorClasses,
   );
 
   return (

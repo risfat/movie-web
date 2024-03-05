@@ -5,22 +5,29 @@ import {
 } from "@movie-web/providers";
 import { useAsyncFn } from "react-use";
 
+import { isExtensionActiveCached } from "@/backend/extension/messaging";
+import { prepareStream } from "@/backend/extension/streams";
+import {
+  connectServerSideEvents,
+  makeProviderUrl,
+} from "@/backend/helpers/providerApi";
 import {
   scrapeSourceOutputToProviderMetric,
   useReportProviders,
 } from "@/backend/helpers/report";
+import { getLoadbalancedProviderApiUrl } from "@/backend/providers/fetchers";
+import { getProviders } from "@/backend/providers/providers";
 import { convertProviderCaption } from "@/components/player/utils/captions";
 import { convertRunoutputToSource } from "@/components/player/utils/convertRunoutputToSource";
 import { useOverlayRouter } from "@/hooks/useOverlayRouter";
 import { metaToScrapeMedia } from "@/stores/player/slices/source";
 import { usePlayerStore } from "@/stores/player/store";
-import { providers } from "@/utils/providers";
 
 export function useEmbedScraping(
   routerId: string,
   sourceId: string,
   url: string,
-  embedId: string
+  embedId: string,
 ) {
   const setSource = usePlayerStore((s) => s.setSource);
   const setCaption = usePlayerStore((s) => s.setCaption);
@@ -31,13 +38,23 @@ export function useEmbedScraping(
   const { report } = useReportProviders();
 
   const [request, run] = useAsyncFn(async () => {
+    const providerApiUrl = getLoadbalancedProviderApiUrl();
     let result: EmbedOutput | undefined;
     if (!meta) return;
     try {
-      result = await providers.runEmbedScraper({
-        id: embedId,
-        url,
-      });
+      if (providerApiUrl && !isExtensionActiveCached()) {
+        const baseUrlMaker = makeProviderUrl(providerApiUrl);
+        const conn = await connectServerSideEvents<EmbedOutput>(
+          baseUrlMaker.scrapeEmbed(embedId, url),
+          ["completed", "noOutput"],
+        );
+        result = await conn.promise();
+      } else {
+        result = await getProviders().runEmbedScraper({
+          id: embedId,
+          url,
+        });
+      }
     } catch (err) {
       console.error(`Failed to scrape ${embedId}`, err);
       const notFound = err instanceof NotFoundError;
@@ -48,7 +65,7 @@ export function useEmbedScraping(
           sourceId,
           embedId,
           status,
-          err
+          err,
         ),
       ]);
       throw err;
@@ -56,12 +73,13 @@ export function useEmbedScraping(
     report([
       scrapeSourceOutputToProviderMetric(meta, sourceId, null, "success", null),
     ]);
+    if (isExtensionActiveCached()) await prepareStream(result.stream[0]);
     setSourceId(sourceId);
     setCaption(null);
     setSource(
-      convertRunoutputToSource({ stream: result.stream }),
-      convertProviderCaption(result.stream.captions),
-      progress
+      convertRunoutputToSource({ stream: result.stream[0] }),
+      convertProviderCaption(result.stream[0].captions),
+      progress,
     );
     router.close();
   }, [embedId, sourceId, meta, router, report, setCaption]);
@@ -85,13 +103,23 @@ export function useSourceScraping(sourceId: string | null, routerId: string) {
   const [request, run] = useAsyncFn(async () => {
     if (!sourceId || !meta) return null;
     const scrapeMedia = metaToScrapeMedia(meta);
+    const providerApiUrl = getLoadbalancedProviderApiUrl();
 
     let result: SourcererOutput | undefined;
     try {
-      result = await providers.runSourceScraper({
-        id: sourceId,
-        media: scrapeMedia,
-      });
+      if (providerApiUrl && !isExtensionActiveCached()) {
+        const baseUrlMaker = makeProviderUrl(providerApiUrl);
+        const conn = await connectServerSideEvents<SourcererOutput>(
+          baseUrlMaker.scrapeSource(sourceId, scrapeMedia),
+          ["completed", "noOutput"],
+        );
+        result = await conn.promise();
+      } else {
+        result = await getProviders().runSourceScraper({
+          id: sourceId,
+          media: scrapeMedia,
+        });
+      }
     } catch (err) {
       console.error(`Failed to scrape ${sourceId}`, err);
       const notFound = err instanceof NotFoundError;
@@ -106,11 +134,12 @@ export function useSourceScraping(sourceId: string | null, routerId: string) {
     ]);
 
     if (result.stream) {
+      if (isExtensionActiveCached()) await prepareStream(result.stream[0]);
       setCaption(null);
       setSource(
-        convertRunoutputToSource({ stream: result.stream }),
-        convertProviderCaption(result.stream.captions),
-        progress
+        convertRunoutputToSource({ stream: result.stream[0] }),
+        convertProviderCaption(result.stream[0].captions),
+        progress,
       );
       setSourceId(sourceId);
       router.close();
@@ -120,10 +149,22 @@ export function useSourceScraping(sourceId: string | null, routerId: string) {
       let embedResult: EmbedOutput | undefined;
       if (!meta) return;
       try {
-        embedResult = await providers.runEmbedScraper({
-          id: result.embeds[0].embedId,
-          url: result.embeds[0].url,
-        });
+        if (providerApiUrl && !isExtensionActiveCached()) {
+          const baseUrlMaker = makeProviderUrl(providerApiUrl);
+          const conn = await connectServerSideEvents<EmbedOutput>(
+            baseUrlMaker.scrapeEmbed(
+              result.embeds[0].embedId,
+              result.embeds[0].url,
+            ),
+            ["completed", "noOutput"],
+          );
+          embedResult = await conn.promise();
+        } else {
+          embedResult = await getProviders().runEmbedScraper({
+            id: result.embeds[0].embedId,
+            url: result.embeds[0].url,
+          });
+        }
       } catch (err) {
         console.error(`Failed to scrape ${result.embeds[0].embedId}`, err);
         const notFound = err instanceof NotFoundError;
@@ -134,7 +175,7 @@ export function useSourceScraping(sourceId: string | null, routerId: string) {
             sourceId,
             result.embeds[0].embedId,
             status,
-            err
+            err,
           ),
         ]);
         throw err;
@@ -145,15 +186,16 @@ export function useSourceScraping(sourceId: string | null, routerId: string) {
           sourceId,
           result.embeds[0].embedId,
           "success",
-          null
+          null,
         ),
       ]);
       setSourceId(sourceId);
       setCaption(null);
+      if (isExtensionActiveCached()) await prepareStream(embedResult.stream[0]);
       setSource(
-        convertRunoutputToSource({ stream: embedResult.stream }),
-        convertProviderCaption(embedResult.stream.captions),
-        progress
+        convertRunoutputToSource({ stream: embedResult.stream[0] }),
+        convertProviderCaption(embedResult.stream[0].captions),
+        progress,
       );
       router.close();
     }

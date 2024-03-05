@@ -1,4 +1,4 @@
-import { RunOutput } from "@movie-web/providers";
+import { Stream } from "@movie-web/providers";
 
 import {
   SourceFileStream,
@@ -7,6 +7,7 @@ import {
 } from "@/stores/player/utils/qualities";
 
 const allowedQualitiesMap: Record<SourceQuality, SourceQuality> = {
+  "4k": "4k",
   "1080": "1080",
   "480": "480",
   "360": "360",
@@ -21,12 +22,14 @@ function isAllowedQuality(inp: string): inp is SourceQuality {
 }
 
 export function convertRunoutputToSource(out: {
-  stream: RunOutput["stream"];
+  stream: Stream;
 }): SourceSliceSource {
   if (out.stream.type === "hls") {
     return {
       type: "hls",
       url: out.stream.playlist,
+      headers: out.stream.headers,
+      preferredHeaders: out.stream.preferredHeaders,
     };
   }
   if (out.stream.type === "file") {
@@ -48,6 +51,8 @@ export function convertRunoutputToSource(out: {
     return {
       type: "file",
       qualities,
+      headers: out.stream.headers,
+      preferredHeaders: out.stream.preferredHeaders,
     };
   }
   throw new Error("unrecognized type");

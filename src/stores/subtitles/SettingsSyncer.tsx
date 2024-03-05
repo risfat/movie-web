@@ -9,13 +9,14 @@ const syncIntervalMs = 5 * 1000;
 
 export function SettingsSyncer() {
   const importSubtitleLanguage = useSubtitleStore(
-    (s) => s.importSubtitleLanguage
+    (s) => s.importSubtitleLanguage,
   );
   const url = useBackendUrl();
 
   useEffect(() => {
     const interval = setInterval(() => {
       (async () => {
+        if (!url) return;
         const state = useSubtitleStore.getState();
         const user = useAuthStore.getState();
         if (state.lastSync.lastSelectedLanguage === state.lastSelectedLanguage)

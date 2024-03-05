@@ -1,38 +1,43 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
+import { getCachedMetadata } from "@/backend/helpers/providerApi";
 import { Toggle } from "@/components/buttons/Toggle";
 import { Icon, Icons } from "@/components/Icon";
 import { useCaptions } from "@/components/player/hooks/useCaptions";
 import { Menu } from "@/components/player/internals/ContextMenu";
-import { getLanguageFromIETF } from "@/components/player/utils/language";
 import { useOverlayRouter } from "@/hooks/useOverlayRouter";
 import { usePlayerStore } from "@/stores/player/store";
 import { qualityToString } from "@/stores/player/utils/qualities";
 import { useSubtitleStore } from "@/stores/subtitles";
-import { providers } from "@/utils/providers";
+import { getPrettyLanguageNameFromLocale } from "@/utils/language";
 
 export function SettingsMenu({ id }: { id: string }) {
   const { t } = useTranslation();
   const router = useOverlayRouter(id);
   const currentQuality = usePlayerStore((s) => s.currentQuality);
   const selectedCaptionLanguage = usePlayerStore(
-    (s) => s.caption.selected?.language
+    (s) => s.caption.selected?.language,
   );
   const subtitlesEnabled = useSubtitleStore((s) => s.enabled);
   const currentSourceId = usePlayerStore((s) => s.sourceId);
   const sourceName = useMemo(() => {
     if (!currentSourceId) return "...";
-    return providers.getMetadata(currentSourceId)?.name ?? "...";
+    const source = getCachedMetadata().find(
+      (src) => src.id === currentSourceId,
+    );
+    return source?.name ?? "...";
   }, [currentSourceId]);
   const { toggleLastUsed } = useCaptions();
 
   const selectedLanguagePretty = selectedCaptionLanguage
-    ? getLanguageFromIETF(selectedCaptionLanguage) ??
-      t("player.menus.captions.unknownLanguage")
+    ? getPrettyLanguageNameFromLocale(selectedCaptionLanguage) ??
+      t("player.menus.subtitles.unknownLanguage")
     : undefined;
 
   const source = usePlayerStore((s) => s.source);
+
+  const downloadable = source?.type === "file" || source?.type === "hls";
 
   return (
     <Menu.Card>
@@ -55,12 +60,10 @@ export function SettingsMenu({ id }: { id: string }) {
         <Menu.Link
           clickable
           onClick={() =>
-            router.navigate(
-              source?.type === "file" ? "/download" : "/download/unable"
-            )
+            router.navigate(downloadable ? "/download" : "/download/unable")
           }
           rightSide={<Icon className="text-xl" icon={Icons.DOWNLOAD} />}
-          className={source?.type === "file" ? "opacity-100" : "opacity-50"}
+          className={downloadable ? "opacity-100" : "opacity-50"}
         >
           {t("player.menus.settings.downloadItem")}
         </Menu.Link>
@@ -78,13 +81,13 @@ export function SettingsMenu({ id }: { id: string }) {
             />
           }
         >
-          {t("player.menus.settings.enableCaptions")}
+          {t("player.menus.settings.enableSubtitles")}
         </Menu.Link>
         <Menu.ChevronLink
           onClick={() => router.navigate("/captions")}
           rightText={selectedLanguagePretty ?? undefined}
         >
-          {t("player.menus.settings.captionItem")}
+          {t("player.menus.settings.subtitleItem")}
         </Menu.ChevronLink>
         <Menu.ChevronLink onClick={() => router.navigate("/playback")}>
           {t("player.menus.settings.playbackItem")}

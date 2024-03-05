@@ -3,15 +3,15 @@
     "description": "movie-web ist eine Web-App, welche das Internet nach Streams durchsucht. Das Team versucht einen minimalistischen Ansatz umzusetzen.",
     "faqTitle": "Häufig gestellte Fragen",
     "q1": {
-      "body": "movie-web hostet keinen eigenen Inhalt. Wenn du auf etwas zum Anschauen klickst, wird das Internet danach durchsucht (Auf dem Ladebildschirm und im Tab \"Videoquellen\" kannst du einstellen, welche Quellen verwendet werden sollen). movie-web lädt keine Videos hoch, alles Videos stammen aus der Suche.",
-      "title": "Woher kommen die Videos?"
+      "body": "movie-web hostet keinen eigenen Inhalt. Wenn du auf etwas zum Anschauen klickst, wird das Internet danach durchsucht (Auf dem Ladebildschirm und im Tab \"Videoquellen\" kannst du einstellen, welche Quellen verwendet werden sollen). movie-web lädt keine Videos hoch, alleVideos stammen aus der Suche.",
+      "title": "Woher stammen die Videos?"
     },
     "q2": {
       "body": "Das Anfragen von Serien oder Filmen ist nicht möglich. movie-web verwaltet keine Inhalte. Alle Videos stammen vom Quellen aus dem Internet.",
       "title": "Wo kann ich eine Serie oder einen Film anfragen?"
     },
     "q3": {
-      "body": "Unsere Suchergebnisse werden von The Movie Database (TMDB) bereitgestellt und angezeigt, egal ob unsere Videoquellen über dieses Video verfügen.",
+      "body": "Unsere Suchergebnisse werden von The Movie Database (TMDB) bereitgestellt und, egal ob unsere Videoquellen über dieses Video verfügen, angezeigt.",
       "title": "Die Suche zeigt eine Serie oder einen Film an, warum kann ich den dann nicht abspielen?"
     },
     "title": "Über movie-web"
@@ -25,8 +25,9 @@
     "deviceNameLabel": "Gerätename",
     "deviceNamePlaceholder": "Handy",
     "generate": {
-      "description": "Deine Passphrase dient als dein Nutzername und Passwort. Speiche sie sicher ab, damit du dich in deinem Konto anmelden kannst",
+      "description": "Deine Passphrase dient als dein Nutzername und Passwort. Speichere sie sicher ab, damit du dich in deinem Konto anmelden kannst",
       "next": "Ich habe meine Passphrase gespeichert",
+      "passphraseFrameLabel": "Passphrase",
       "title": "Deine Passphrase"
     },
     "hasAccount": "Du hast bereits einen Account? <0>Anmelden.</0>",
@@ -43,8 +44,8 @@
       "information": {
         "color1": "Profilfarbe 1",
         "color2": "Profilfarbe 2",
-        "header": "Gebe einen Namen für dein Gerät ein und wähle ein Nutzersymbol",
-        "icon": "Nutzersymbol",
+        "header": "Gebe einen Namen für dein Gerät ein und wähle ein Symbol",
+        "icon": "Symbol",
         "next": "Weiter",
         "title": "Kontoinformationen"
       }
@@ -54,13 +55,13 @@
         "text": "Hast du es korrekt konfiguriert?",
         "title": "Server nicht erreichbar"
       },
-      "host": "Du verbindest dich zu <0>{{hostname}}</0> - stelle sicher, dass du diesem vertraust, bevor du einen Account erstellst",
+      "host": "Du verbindest dich mit <0>{{hostname}}</0> - stelle sicher das du dem Server vertraust, bevor du ein Konto erstellst",
       "no": "Zurück",
       "title": "Vertraust du diesem Server?",
       "yes": "Ich vertraue diesem Server"
     },
     "verify": {
-      "description": "Bitte gebe deine Passphrase vom früheren Schritt an, um zu bestätigen, dass du sie gespeichert hast und um dein Konto zu erstellen",
+      "description": "Bitte gebe deine Passphrase ein, um zu bestätigen, dass du sie gespeichert hast und um dein Konto zu erstellen",
       "invalidData": "Daten sind ungültig",
       "noMatch": "Passphrasen stimmen nicht überein",
       "passphraseLabel": "Deine 12-Wort Passphrase",
@@ -94,6 +95,7 @@
       "about": "Über",
       "dmca": "DMCA",
       "login": "Anmelden",
+      "onboarding": "Einrichtung",
       "pagetitle": "{{title}} - movie-web",
       "register": "Registrieren",
       "settings": "Einstellungen"
@@ -110,28 +112,30 @@
       "stopEditing": "Bearbeiten beenden"
     },
     "search": {
-      "allResults": "Das ist alles, was wir haben!",
+      "allResults": "Das ist alles!",
       "failed": "Das Medium wurde nicht gefunden, bitte versuchen Sie es erneut!",
       "loading": "Wird geladen...",
       "noResults": "Wir haben nichts gefunden!",
-      "placeholder": "Was willst du gucken?",
+      "placeholder": {
+        "default": "Was möchtest du schauen?",
+        "extra": []
+      },
       "sectionTitle": "Suchergebnisse"
     },
     "titles": {
       "day": {
-        "default": "Was würdest du diesen Nachmittag gerne schauen?"
+        "default": "Was würdest du diesem Nachmittag gerne schauen?",
+        "extra": [
+          "Lust auf ein Abenteuer? Dann ist Jurassic Park genau das Richtige."
+        ]
       },
       "morning": {
         "default": "Was würdest du diesen Morgen gerne schauen?",
-        "extra": [
-          "Ich hab gehört Before Sunrise soll gut sein"
-        ]
+        "extra": ["Before Sunrise soll gut sein"]
       },
       "night": {
-        "default": "Was würdest du diesen Abend gerne schauen?",
-        "extra": [
-          "Müde? Ich hab gehört The Exorcist soll gut sein."
-        ]
+        "default": "Was möchtest du diesen Abend gerne schauen?",
+        "extra": ["Müde? Ich hab gehört The Exorcist soll gut sein."]
       }
     }
   },
@@ -158,8 +162,71 @@
   "notFound": {
     "badge": "Nicht gefunden",
     "goHome": "Zurück zur Startseite",
-    "message": "Wir haben überall gesucht: Unter den Eimern, im Schrank, hinter der Proxy, aber am Ende konnten wir die gesuchte Seite nicht finden.",
+    "message": "Wir haben überall gesucht: Unter den Eimern, im Schrank, hinter dem Proxy. Wir konnten die gesuchte Seite nicht finden.",
     "title": "Diese Seite wurde nicht gefunden"
+  },
+  "onboarding": {
+    "defaultConfirm": {
+      "cancel": "Abbrechen",
+      "confirm": "Standard-Setup verwenden",
+      "description": "Das Standard-Setup verfügt nicht über die besten Streams und kann unerträglich langsam sein.",
+      "title": "Sicher?"
+    },
+    "extension": {
+      "back": "Zurück gehen",
+      "explainer": "Mit der Browser-Erweiterung kannst du die besten Streams benutzen, die wir zu bieten haben. Mit nur einer einfachen Installation.",
+      "explainerIos": "Leider ist die Browser-Extension unter iOS nicht unterstützt. Klicken Sie auf <bold>Zurück</bold>, um eine andere Option auszuwählen.",
+      "extensionHelp": "Falls du die Erweiterung installiert hast, aber sie aber nicht erkannt wird, <bold>öffne die Erweiterung über das Erweiterungsmenü Ihres Browsers</bold> und befolge die Schritte auf dem Bildschirm.",
+      "linkChrome": "Chrome Erweiterung installieren",
+      "linkFirefox": "Firefox Erweiterung installieren",
+      "notDetecting": "Auf Chrome Installiert, aber die Website erkennt es nicht? Versuche, die Seite wieder zu laden!",
+      "notDetectingAction": "Seite neuladen",
+      "status": {
+        "disallowed": "Browser-Erweiterung ist für diese Website nicht aktiviert",
+        "disallowedAction": "Browser-Erweiterung aktivieren",
+        "failed": "Statusanforderung fehlgeschlagen",
+        "loading": "Wartet dass du die Erweiterung installierst",
+        "outdated": "Erweiterungsversion zu alt",
+        "success": "Die Browser-Erweiterung funktioniert wie erwartet!"
+      },
+      "submit": "Weiter",
+      "title": "Lass uns mit einer Erweiterung starten"
+    },
+    "proxy": {
+      "back": "Zurück gehen",
+      "explainer": "Mit der Proxy-Methode kannst du Streams mit guter Qualität benutzen, indem du einen eigenen Proxy einstellst.",
+      "input": {
+        "errorConnection": "Es konnte keine Verbindung zum Proxy hergestellt werden",
+        "errorInvalidUrl": "Keine gültige URL",
+        "errorNotProxy": "Ein Proxy wurde erwartet, aber eine Website wurde eingegeben",
+        "label": "Proxy-URL",
+        "placeholder": "https://"
+      },
+      "link": "Erfahre, wie man einen Proxy einstellt",
+      "submit": "Proxy einreichen",
+      "title": "Lass uns eine neue Proxy erstellen"
+    },
+    "start": {
+      "explainer": "Um die bestmöglichen Streams zu erhalten, müssen Sie auswählen, welche Streaming-Methode Sie verwenden möchten.",
+      "options": {
+        "default": {
+          "text": "Ich möchte keine Streams mit guter Qualität. <0 /> <1>Standardeinstellung benutzen</1>"
+        },
+        "extension": {
+          "action": "Browser-Erweitung installieren",
+          "description": "Installiere die Browser-Erweitung, um Zugriff auf die besten Quellen zu bekommen.",
+          "quality": "Beste Qualität",
+          "title": "Browser extension"
+        },
+        "proxy": {
+          "action": "Proxy einstellen",
+          "description": "Richte in nur 5 Minuten einen Proxy ein und erhalte Zugriff auf großartige Quellen.",
+          "quality": "Gute Qualität",
+          "title": "Eigene Proxy"
+        }
+      },
+      "title": "Lass uns mit der Einrichtung von movie-web starten"
+    }
   },
   "overlays": {
     "close": "Schließen"
@@ -167,28 +234,17 @@
   "player": {
     "back": {
       "default": "Zurück zur Startseite",
-      "short": "Rückmeldung"
+      "short": "Zurück"
     },
     "casting": {
       "enabled": "Casting zum Gerät..."
     },
     "menus": {
-      "captions": {
-        "customChoice": "Untertitel hochladen",
-        "customizeLabel": "Bearbeiten",
-        "offChoice": "Aus",
-        "settings": {
-          "delay": "Untertitelverzögerung",
-          "fixCapitals": "Großschreibung korrigieren"
-        },
-        "title": "Untertitel",
-        "unknownLanguage": "Unbekannt"
-      },
       "downloads": {
-        "disclaimer": "Videos werden direkt vom Provider heruntergeladen. movie-web hat nicht steuern, wie die Downloads bereitgestellt werden.",
-        "downloadCaption": "Ausgewählte Untertitel herunterladen",
+        "disclaimer": "Videos werden direkt vom Provider heruntergeladen. movie-web hat keinen Einfluss darauf, wie Downloads bereitgestellt werden.",
+        "downloadSubtitle": "Aktuelle Untertitel herunterladen",
         "downloadVideo": "Video herunterladen",
-        "hlsExplanation": "Dieses Video ist ein HLS-Stream, welcher auf movie-web nicht heruntergeladen werden kann.",
+        "hlsDisclaimer": "movie-web hat keinen Einfluss darauf, wie Downloads bereitgestellt werden. Downloads werden direkt vom Anbieter bezogen. <br /><br />Bitte beachte, dass du eine HLS-Wiedergabeliste herunterlädst, <bold>dies ist nicht empfohlen für Nutzer die nicht mit Erweiterten Streaming Formaten vertraut sind</bold>. Probiere andere Anbieter für andere Formate.",
         "onAndroid": {
           "1": "Um auf Android Herunterzuladen, tippe auf den Download-Button, <bold>tippe und halte</bold> auf der neuen Seite auf das Video und wähle <bold>Speichern</bold> aus.",
           "shortTitle": "Download / Android",
@@ -212,7 +268,8 @@
         "episodeBadge": "E{{episode}}",
         "loadingError": "Fehler beim Laden der Sitzung",
         "loadingList": "Wird geladen...",
-        "loadingTitle": "Wird geladen..."
+        "loadingTitle": "Wird geladen...",
+        "unairedEpisodes": "Eine oder mehrere Episoden dieser Staffel wurden deaktiviert, weil sie noch nicht ausgestrahlt wurden."
       },
       "playback": {
         "speedLabel": "Wiedergabegeschwindigkeit",
@@ -225,19 +282,19 @@
         "title": "Qualität"
       },
       "settings": {
-        "captionItem": "Untertiteleinstellungen",
         "downloadItem": "Download",
-        "enableCaptions": "Untertitel aktivieren",
+        "enableSubtitles": "Untettitel aktivieren",
         "experienceSection": "Anzeigeerlebnis",
         "playbackItem": "Wiedergabeeinstellungen",
         "qualityItem": "Qualität",
         "sourceItem": "Videoquellen",
+        "subtitleItem": "Untertiteleinstellungen",
         "videoSection": "Videoeinstellungen"
       },
       "sources": {
         "failed": {
           "text": "Beim Versuch, Videos zu finden, ist ein Fehler aufgetreten. Bitte versuche es mit einer anderen Quelle.",
-          "title": "Scrapen fehlgeschlagen"
+          "title": "Fehler beim Laden"
         },
         "noEmbeds": {
           "text": "Es konnten keine Embeds gefunden werden. Bitte versuchen es mit einer anderen Quelle.",
@@ -249,9 +306,36 @@
         },
         "title": "Quellen",
         "unknownOption": "Unbekannt"
+      },
+      "subtitles": {
+        "customChoice": "Untertitel aus Datei wählen",
+        "customizeLabel": "Anpassen",
+        "offChoice": "Aus",
+        "settings": {
+          "backlink": "Eigene Untertitel",
+          "delay": "Untertitelverzögerung",
+          "fixCapitals": "Großschreibung korrigieren"
+        },
+        "title": "Untertitel",
+        "unknownLanguage": "Unbekannt"
       }
     },
     "metadata": {
+      "api": {
+        "text": "API Metadaten konnten nicht geladen werden, überprüfe deine Netzwerkverbindung.",
+        "title": "API Metadaten konnten nicht geladen werden"
+      },
+      "dmca": {
+        "badge": "Entfernt",
+        "text": "Das Video ist aufgrund einer Takedown-Anfrage oder eines Urheberrechtsanspruchs nicht mehr verfügbar.",
+        "title": "Video wurde entfernt"
+      },
+      "extensionPermission": {
+        "badge": "Berechtigung fehlt",
+        "button": "Verwende Erweiterung",
+        "text": "Du hast die Browser-Erweiterung, aber wir brauchen deine Berechtigung um mit der Erweiterung zu starten.",
+        "title": "Konfiguriere die Erweiterung"
+      },
       "failed": {
         "badge": "Fehlgeschlagen",
         "homeButton": "Zurück zur Startseite",
@@ -261,8 +345,8 @@
       "notFound": {
         "badge": "Nicht gefunden",
         "homeButton": "Zurück zur Startseite",
-        "text": "Wir konnten das angeforderte Medium nicht finden.",
-        "title": "Das Medium konnte nicht gefunden werden."
+        "text": "Wir konnten das angeforderte Video nicht finden.",
+        "title": "Das Video konnte nicht gefunden werden."
       }
     },
     "nextEpisode": {
@@ -273,13 +357,13 @@
       "badge": "Wiedergabefehler",
       "errors": {
         "errorAborted": "Das Laden des Videos wurde vom Nutzer abgebrochen.",
-        "errorDecode": "Trotz vorheriger Feststellung der Nutzbarkeit trat ein Fehler beim Versuch auf, die Mediumdatei zu decodieren, was zu einem Fehler führte.",
+        "errorDecode": "Beim Versuch, das Video zu dekodieren, ist ein Fehler aufgetreten, obwohl sie zuvor als brauchbar eingestuft worden war.",
         "errorGenericMedia": "Unbekannter Videofehler ist aufgetreten.",
-        "errorNetwork": "Es ist ein Netzwerkfehler aufgetreten, der das erfolgreiche Abrufen des Mediums verhinderte, obwohl es zuvor verfügbar war.",
-        "errorNotSupported": "Das Medium- oder Mediumanbieterobjekt wird nicht unterstützt."
+        "errorNetwork": "Es ist ein Netzwerkfehler aufgetreten, der verhindert hat, dass das Video erfolgreich abgerufen werden konnten, obwohl es verfügbar waren.",
+        "errorNotSupported": "Das Video- oder Videoanbieter wird nicht unterstützt."
       },
       "homeButton": "Zurück zur Startseite",
-      "text": "Ein Fehler ist während der Wiedergabe aufgetreten. Versuche es erneut.",
+      "text": "Während der Wiedergabe ist ein Fehler aufgetreten. Versuche es erneut.",
       "title": "Hoppla, etwas ist schiefgegangen!"
     },
     "scraping": {
@@ -292,7 +376,7 @@
         "badge": "Nicht gefunden",
         "detailsButton": "Details anzeigen",
         "homeButton": "Zurück zur Startseite",
-        "text": "Wir haben alle Anbieter durchsucht, konnten aber nicht das Video finden nach dem du suchst! Wir stellen keine eigenen Videos bereit und haben keine Kontrolle darüber, was verfügbar ist. Bitte klicke \"Details anzeigen\" für mehr Details.",
+        "text": "Wir haben alle Anbieter durchsucht, konnten aber nicht das Video finden nach dem du suchst! Wir stellen keine eigenen Videos bereit und haben keine Kontrolle darüber, was verfügbar ist. Bitte klicke auf \"Details anzeigen\" für mehr Details.",
         "title": "Wir konnten das nicht finden"
       }
     },
@@ -301,6 +385,12 @@
       "remaining": "{{timeLeft}} übrig • Fertig um {{timeFinished, datetime}}",
       "shortRegular": "{{timeWatched}}",
       "shortRemaining": "-{{timeLeft}}"
+    },
+    "turnstile": {
+      "description": "Bitte verifiziere deine Menschlichkeit mit dem Captcha auf der Rechten Seite. Dies ist um movie-web sicher zu halten!",
+      "error": "Menschlichkeit konnte nicht verifiziert werden. Bitte versuche es erneut.",
+      "title": "Wir müssen sicherstellen, dass du Menschlich bist.",
+      "verifyingHumanity": "Verifiziere deine Menschlichkeit..."
     }
   },
   "screens": {
@@ -351,7 +441,7 @@
         "firstColor": "Profilfarbe 1",
         "secondColor": "Profilfarbe 2",
         "title": "Profilbild bearbeiten",
-        "userIcon": "Nutzersymbol"
+        "userIcon": "Symbol"
       },
       "register": {
         "cta": "Los geht's",
@@ -371,33 +461,51 @@
       },
       "title": "Aussehen"
     },
-    "captions": {
-      "backgroundLabel": "Hintergrund-Deckkraft",
-      "colorLabel": "Farbe",
-      "previewQuote": "Das Gras wächst nicht schneller, wenn man daran zieht.",
-      "textSizeLabel": "Schriftgröße",
-      "title": "Untertitel"
-    },
     "connections": {
       "server": {
-        "description": "Falls du dich mit einem anderen Server verbinden willst, um deine Daten zu speichern. Aktiviere dies und gebe die URL an.",
+        "description": "Falls du dich mit einem anderen Server verbinden willst, um deine Daten zu speichern. Aktiviere dies und gebe die URL an. <0>Anweisungen.</0>",
         "label": "Eigener Server",
         "urlLabel": "Eigene Server-URL"
       },
-      "title": "Verbindungen",
+      "setup": {
+        "doSetup": "Einrichten",
+        "errorStatus": {
+          "description": "Es scheint so, als bräuchte eine oder mehrere Schritte in dieser Einrichtung deine Aufmerksamkeit.",
+          "title": "Etwas braucht deine Aufmerksamkeit"
+        },
+        "itemError": "Mit diesem Setup stimmt etwas nicht. Führen Sie das Setup erneut durch, um das Problem zu beheben.",
+        "items": {
+          "default": "Standard Einstellungen",
+          "extension": "Erweiterung",
+          "proxy": "Eigene Proxy"
+        },
+        "redoSetup": "Erneut einrichten",
+        "successStatus": {
+          "description": "Alles ist bereit, damit du deine Lieblingsserien und Filme ansehen kannst.",
+          "title": "Alles eingerichtet!"
+        },
+        "unsetStatus": {
+          "description": "Klicken Sie bitte auf den Button rechts, um die Setup zu starten.",
+          "title": "Du hast das Setup noch nicht durchgeführt"
+        }
+      },
+      "title": "Verbindung",
       "workers": {
         "addButton": "Neuen Worker hinzufügen",
-        "description": "Damit die App funktioniert werden alle Anfrage durch einen Proxy geleitet. Aktiviere dies, falls du deinen eigenen Worker verwenden willst.",
+        "description": "Damit die App funktioniert werden alle Anfrage durch einen Proxy geleitet. Aktiviere dies, falls du deinen eigenen Worker verwenden willst. <0>Anweisungen.</0>",
         "emptyState": "Keine Worker vorhanden, füge einen unten hinzu",
         "label": "Verwenden deinen eigenen Worker-Proxys",
         "urlLabel": "Worker-URLs",
         "urlPlaceholder": "https://"
       }
     },
-    "locale": {
+    "preferences": {
       "language": "App-Sprache",
       "languageDescription": "Sprache für die ganze App.",
-      "title": "Sprache"
+      "thumbnail": "Miniaturansichten generieren",
+      "thumbnailDescription": "Meistens haben Videos keine Miniaturansicht. Du kannst diese Einstellung anmachen, um sie automatisch zu generieren, aber sie können dein Video langsamer machen.",
+      "thumbnailLabel": "Miniaturansichten generieren",
+      "title": "Einstellungen"
     },
     "reset": "Zurücksetzen",
     "save": "Speichern",
@@ -414,6 +522,13 @@
         "unknownVersion": "Unbekannt",
         "userId": "Nutzer-ID"
       }
+    },
+    "subtitles": {
+      "backgroundLabel": "Hintergrunddeckkraft",
+      "colorLabel": "Farbe",
+      "previewQuote": "Das Gras wächst nicht schneller, wenn man daran zieht.",
+      "textSizeLabel": "Schriftgröße",
+      "title": "Untertitel"
     },
     "unsaved": "Du hast ungespeicherte Änderungen"
   }

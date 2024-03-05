@@ -4,9 +4,9 @@ import "./stores/__old/imports";
 import "@/setup/ga";
 import "@/assets/css/index.css";
 
-import React, { Suspense, useCallback } from "react";
+import { StrictMode, Suspense, useCallback } from "react";
 import type { ReactNode } from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import { useTranslation } from "react-i18next";
 import { BrowserRouter, HashRouter } from "react-router-dom";
@@ -23,23 +23,18 @@ import { MigrationPart } from "@/pages/parts/migrations/MigrationPart";
 import { LargeTextPart } from "@/pages/parts/util/LargeTextPart";
 import App from "@/setup/App";
 import { conf } from "@/setup/config";
-import i18n from "@/setup/i18n";
 import { useAuthStore } from "@/stores/auth";
 import { BookmarkSyncer } from "@/stores/bookmarks/BookmarkSyncer";
-import { useLanguageStore } from "@/stores/language";
+import { changeAppLanguage, useLanguageStore } from "@/stores/language";
 import { ProgressSyncer } from "@/stores/progress/ProgressSyncer";
 import { SettingsSyncer } from "@/stores/subtitles/SettingsSyncer";
 import { ThemeProvider } from "@/stores/theme";
+import { TurnstileProvider } from "@/stores/turnstile";
 
 import { initializeChromecast } from "./setup/chromecast";
 import { initializeOldStores } from "./stores/__old/migrations";
 
 // initialize
-const key =
-  (window as any)?.__CONFIG__?.VITE_KEY ?? import.meta.env.VITE_KEY ?? null;
-if (key) {
-  (window as any).initMW(conf().PROXY_URLS, key);
-}
 initializeChromecast();
 
 function LoadingScreen(props: { type: "user" | "lazy" }) {
@@ -118,7 +113,7 @@ function AuthWrapper() {
         {t(
           isCustomUrl
             ? "screens.loadingUserError.textWithReset"
-            : "screens.loadingUserError.text"
+            : "screens.loadingUserError.text",
         )}
       </ErrorScreen>
     );
@@ -127,7 +122,7 @@ function AuthWrapper() {
 
 function MigrationRunner() {
   const status = useAsync(async () => {
-    i18n.changeLanguage(useLanguageStore.getState().language);
+    changeAppLanguage(useLanguageStore.getState().language);
     await initializeOldStores();
   }, []);
   const { t } = useTranslation();
@@ -145,9 +140,13 @@ function TheRouter(props: { children: ReactNode }) {
   return <HashRouter>{props.children}</HashRouter>;
 }
 
-ReactDOM.render(
-  <React.StrictMode>
+const container = document.getElementById("root");
+const root = createRoot(container!);
+
+root.render(
+  <StrictMode>
     <ErrorBoundary>
+      <TurnstileProvider />
       <HelmetProvider>
         <Suspense fallback={<LoadingScreen type="lazy" />}>
           <ThemeProvider applyGlobal>
@@ -161,6 +160,5 @@ ReactDOM.render(
         </Suspense>
       </HelmetProvider>
     </ErrorBoundary>
-  </React.StrictMode>,
-  document.getElementById("root")
+  </StrictMode>,
 );

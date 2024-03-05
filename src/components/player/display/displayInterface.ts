@@ -41,6 +41,7 @@ export interface DisplayMeta {
 }
 
 export interface DisplayCaption {
+  id: string;
   srtData: string;
   language: string;
   url?: string;
@@ -54,7 +55,7 @@ export interface DisplayInterface extends Listener<DisplayInterfaceEvents> {
   load(ops: qualityChangeOptions): void;
   changeQuality(
     automaticQuality: boolean,
-    preferredQuality: SourceQuality | null
+    preferredQuality: SourceQuality | null,
   ): void;
   processVideoElement(video: HTMLVideoElement): void;
   processContainerElement(container: HTMLElement): void;

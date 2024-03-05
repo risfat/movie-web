@@ -31,11 +31,12 @@ import { ThemePart } from "@/pages/parts/settings/ThemePart";
 import { PageTitle } from "@/pages/parts/util/PageTitle";
 import { AccountWithToken, useAuthStore } from "@/stores/auth";
 import { useLanguageStore } from "@/stores/language";
+import { usePreferencesStore } from "@/stores/preferences";
 import { useSubtitleStore } from "@/stores/subtitles";
-import { useThemeStore } from "@/stores/theme";
+import { usePreviewThemeStore, useThemeStore } from "@/stores/theme";
 
 import { SubPageLayout } from "./layouts/SubPageLayout";
-import { LocalePart } from "./parts/settings/LocalePart";
+import { PreferencesPart } from "./parts/settings/PreferencesPart";
 
 function SettingsLayout(props: { children: React.ReactNode }) {
   const { isMobile } = useIsMobile();
@@ -45,7 +46,7 @@ function SettingsLayout(props: { children: React.ReactNode }) {
       <div
         className={classNames(
           "grid gap-12",
-          isMobile ? "grid-cols-1" : "lg:grid-cols-[280px,1fr]"
+          isMobile ? "grid-cols-1" : "lg:grid-cols-[280px,1fr]",
         )}
       >
         <SidebarPart />
@@ -69,6 +70,7 @@ export function AccountSettings(props: {
   const url = useBackendUrl();
   const { account } = props;
   const [sessionsResult, execSessions] = useAsyncFn(() => {
+    if (!url) return Promise.resolve([]);
     return getSessions(url, account);
   }, [account, url]);
   useEffect(() => {
@@ -102,6 +104,8 @@ export function SettingsPage() {
   const { t } = useTranslation();
   const activeTheme = useThemeStore((s) => s.theme);
   const setTheme = useThemeStore((s) => s.setTheme);
+  const previewTheme = usePreviewThemeStore((s) => s.previewTheme);
+  const setPreviewTheme = usePreviewThemeStore((s) => s.setPreviewTheme);
 
   const appLanguage = useLanguageStore((s) => s.language);
   const setAppLanguage = useLanguageStore((s) => s.setLanguage);
@@ -114,6 +118,9 @@ export function SettingsPage() {
 
   const backendUrlSetting = useAuthStore((s) => s.backendUrl);
   const setBackendUrl = useAuthStore((s) => s.setBackendUrl);
+
+  const enableThumbnails = usePreferencesStore((s) => s.enableThumbnails);
+  const setEnableThumbnails = usePreferencesStore((s) => s.setEnableThumbnails);
 
   const account = useAuthStore((s) => s.account);
   const updateProfile = useAuthStore((s) => s.setAccountProfile);
@@ -135,21 +142,46 @@ export function SettingsPage() {
     decryptedName,
     proxySet,
     backendUrlSetting,
-    account?.profile
+    account?.profile,
+    enableThumbnails,
+  );
+
+  useEffect(() => {
+    setPreviewTheme(activeTheme ?? "default");
+  }, [setPreviewTheme, activeTheme]);
+
+  useEffect(() => {
+    // Clear preview theme on unmount
+    return () => {
+      setPreviewTheme(null);
+    };
+  }, [setPreviewTheme]);
+
+  const setThemeWithPreview = useCallback(
+    (theme: string) => {
+      state.theme.set(theme === "default" ? null : theme);
+      setPreviewTheme(theme);
+    },
+    [state.theme, setPreviewTheme],
   );
 
   const saveChanges = useCallback(async () => {
-    if (account) {
-      if (state.appLanguage.changed || state.theme.changed) {
+    if (account && backendUrl) {
+      if (
+        state.appLanguage.changed ||
+        state.theme.changed ||
+        state.proxyUrls.changed
+      ) {
         await updateSettings(backendUrl, account, {
           applicationLanguage: state.appLanguage.state,
           applicationTheme: state.theme.state,
+          proxyUrls: state.proxyUrls.state?.filter((v) => v !== "") ?? null,
         });
       }
       if (state.deviceName.changed) {
         const newDeviceName = await encryptData(
           state.deviceName.state,
-          base64ToBuffer(account.seed)
+          base64ToBuffer(account.seed),
         );
         await updateSession(backendUrl, account, {
           deviceName: newDeviceName,
@@ -163,10 +195,11 @@ export function SettingsPage() {
       }
     }
 
+    setEnableThumbnails(state.enableThumbnails.state);
     setAppLanguage(state.appLanguage.state);
     setTheme(state.theme.state);
     setSubStyling(state.subtitleStyling.state);
-    setProxySet(state.proxyUrls.state);
+    setProxySet(state.proxyUrls.state?.filter((v) => v !== "") ?? null);
 
     if (state.profile.state) {
       updateProfile(state.profile.state);
@@ -175,12 +208,19 @@ export function SettingsPage() {
     // when backend url gets changed, log the user out first
     if (state.backendUrl.changed) {
       await logout();
-      setBackendUrl(state.backendUrl.state);
+
+      let url = state.backendUrl.state;
+      if (url && !url.startsWith("http://") && !url.startsWith("https://")) {
+        url = `https://${url}`;
+      }
+
+      setBackendUrl(url);
     }
   }, [
     state,
     account,
     backendUrl,
+    setEnableThumbnails,
     setAppLanguage,
     setTheme,
     setSubStyling,
@@ -196,7 +236,7 @@ export function SettingsPage() {
       <SettingsLayout>
         <div id="settings-account">
           <Heading1 border className="!mb-0">
-            Account
+            {t("settings.account.title")}
           </Heading1>
           {user.account && state.profile.state ? (
             <AccountSettings
@@ -220,14 +260,20 @@ export function SettingsPage() {
             <RegisterCalloutPart />
           )}
         </div>
-        <div id="settings-locale" className="mt-48">
-          <LocalePart
+        <div id="settings-preferences" className="mt-48">
+          <PreferencesPart
             language={state.appLanguage.state}
             setLanguage={state.appLanguage.set}
+            enableThumbnails={state.enableThumbnails.state}
+            setEnableThumbnails={state.enableThumbnails.set}
           />
         </div>
         <div id="settings-appearance" className="mt-48">
-          <ThemePart active={state.theme.state} setTheme={state.theme.set} />
+          <ThemePart
+            active={previewTheme ?? "default"}
+            inUse={activeTheme ?? "default"}
+            setTheme={setThemeWithPreview}
+          />
         </div>
         <div id="settings-captions" className="mt-48">
           <CaptionsPart
@@ -270,3 +316,5 @@ export function SettingsPage() {
     </SubPageLayout>
   );
 }
+
+export default SettingsPage;

@@ -3,7 +3,7 @@
     "description": "movie-web är en webbapplikation som söker efter strömmar på internet. Teamet strävar efter en mestadels minimalistisk ansats för att konsumera innehåll.",
     "faqTitle": "Vanliga frågor",
     "q1": {
-      "body": "movie-web hostar inte något innehåll. När du klickar på något att titta på, söks internet efter den valda median (På laddningsskärmen och i fliken 'video sources' kan du se vilken källa du använder). Media laddas aldrig upp av movie-web, allt går genom detta sökmechanism.",
+      "body": "Movie-web hostar ingen innehåll. När du klickar på något att titta på, söks internet efter det valda mediet (På laddningsskärmen och i fliken 'Videokällor' kan du se vilken källa du använder). Inget medium laddas upp av movie-web, allt sker genom sökmotorn.",
       "title": "Var kommer innehållet ifrån?"
     },
     "q2": {
@@ -78,15 +78,15 @@
   },
   "footer": {
     "legal": {
-      "disclaimer": "Ansvarsfriskrivning",
-      "disclaimerText": "movie-web hostar inga filer, den länkar bara till tjänster från tredje part. Juridiska frågor bör tas upp med filvärdar och leverantörer. movie-web ansvarar inte för några mediefiler som visas av videoleverantörerna."
+      "disclaimer": "Friskriver sig från ansvar",
+      "disclaimerText": "Movie-web hostar inga filer utan länkar endast till filer från tredje part. Eventuella juridiska frågor bör tas upp med källorna till materialet. Movie-web varken ansvarar eller styr över de mediefiler som visas."
     },
     "links": {
       "discord": "Discord",
       "dmca": "DMCA",
       "github": "GitHub"
     },
-    "tagline": "Titta på dina favoritprogram och filmer med denna öppna källkodsströmapp."
+    "tagline": "Titta på dina favoritprogram och filmer helt gratis."
   },
   "global": {
     "name": "movie-web",
@@ -114,7 +114,10 @@
       "failed": "Misslyckades med att hitta media, försök igen!",
       "loading": "Laddar...",
       "noResults": "Vi kunde inte hitta någonting!",
-      "placeholder": "Vad vill du titta på?",
+      "placeholder": {
+        "default": "Vad vill du titta på?",
+        "extra": []
+      },
       "sectionTitle": "Sökresultat"
     },
     "titles": {
@@ -123,15 +126,11 @@
       },
       "morning": {
         "default": "Vad vill du titta på den här morgonen?",
-        "extra": [
-          "Jag hör att Before Sunrise är bra"
-        ]
+        "extra": ["Jag hör att Before Sunrise är bra"]
       },
       "night": {
         "default": "Vad vill du titta på ikväll?",
-        "extra": [
-          "Trött? Jag hör att The Exorcist är bra."
-        ]
+        "extra": ["Trött? Jag hör att The Exorcist är bra."]
       }
     }
   },
@@ -173,22 +172,9 @@
       "enabled": "Castar till enheten..."
     },
     "menus": {
-      "captions": {
-        "customChoice": "Välj undertext från fil",
-        "customizeLabel": "Anpassa",
-        "offChoice": "Av",
-        "settings": {
-          "delay": "Fördröjning för undertexter",
-          "fixCapitals": "Åtgärda versaler"
-        },
-        "title": "Undertexter",
-        "unknownLanguage": "Okänd"
-      },
       "downloads": {
         "disclaimer": "Nedladdningar görs direkt från leverantören. movie-web har ingen kontroll över hur nedladdningarna tillhandahålls.",
-        "downloadCaption": "Ladda ner aktuell undertext",
         "downloadVideo": "Ladda ner video",
-        "hlsExplanation": "Denna media är en HLS-ström som inte kan laddas ner på movie-web.",
         "onAndroid": {
           "1": "För att ladda ner på Android, klicka på nedladdningsknappen och på den nya sidan <bold>trycker och håller</bold> på videon, välj sedan <bold>spara</bold>.",
           "shortTitle": "Ladda ner / Android",
@@ -225,9 +211,7 @@
         "title": "Kvalitet"
       },
       "settings": {
-        "captionItem": "Undertextinställningar",
         "downloadItem": "Ladda ner",
-        "enableCaptions": "Aktivera undertexter",
         "experienceSection": "Visningsupplevelse",
         "playbackItem": "Uppspelningsinställningar",
         "qualityItem": "Kvalitet",
@@ -371,13 +355,6 @@
       },
       "title": "Utseende"
     },
-    "captions": {
-      "backgroundLabel": "Bakgrundstransparens",
-      "colorLabel": "Färg",
-      "previewQuote": "Jag får inte frukta. Rädsla är tankedödaren.",
-      "textSizeLabel": "Textstorlek",
-      "title": "Textning"
-    },
     "connections": {
       "server": {
         "description": "Om du vill ansluta till en anpassad bakänd för att lagra dina data, aktivera detta och ange URL:en.",
@@ -393,11 +370,6 @@
         "urlLabel": "Arbetar-URL:er",
         "urlPlaceholder": "https://"
       }
-    },
-    "locale": {
-      "language": "Språk för applikationen",
-      "languageDescription": "Språket som används i hela applikationen.",
-      "title": "Plats"
     },
     "reset": "Återställ",
     "save": "Spara",

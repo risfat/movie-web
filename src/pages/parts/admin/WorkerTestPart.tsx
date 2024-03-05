@@ -2,13 +2,13 @@ import classNames from "classnames";
 import { useMemo, useState } from "react";
 import { useAsyncFn } from "react-use";
 
-import { mwFetch } from "@/backend/helpers/fetch";
+import { singularProxiedFetch } from "@/backend/helpers/fetch";
 import { Button } from "@/components/buttons/Button";
 import { Icon, Icons } from "@/components/Icon";
 import { Box } from "@/components/layout/Box";
 import { Divider } from "@/components/utils/Divider";
 import { Heading2 } from "@/components/utils/Text";
-import { conf } from "@/setup/config";
+import { getProxyUrls } from "@/utils/proxyUrls";
 
 export function WorkerItem(props: {
   name: string;
@@ -23,8 +23,8 @@ export function WorkerItem(props: {
           props.errored
             ? Icons.WARNING
             : props.success
-            ? Icons.CIRCLE_CHECK
-            : Icons.EYE_SLASH
+              ? Icons.CIRCLE_CHECK
+              : Icons.EYE_SLASH
         }
         className={classNames({
           "text-xl mr-2 mt-0.5": true,
@@ -43,7 +43,7 @@ export function WorkerItem(props: {
 
 export function WorkerTestPart() {
   const workerList = useMemo(() => {
-    return conf().PROXY_URLS.map((v, ind) => ({
+    return getProxyUrls().map((v, ind) => ({
       id: ind.toString(),
       url: v,
     }));
@@ -52,14 +52,18 @@ export function WorkerTestPart() {
     { id: string; status: "error" | "success"; error?: Error }[]
   >([]);
 
+  const [buttonDisabled, setButtonDisabled] = useState(false);
+
   const [testState, runTests] = useAsyncFn(async () => {
+    setButtonDisabled(true);
     function updateWorker(id: string, data: (typeof workerState)[number]) {
       setWorkerState((s) => {
         return [...s.filter((v) => v.id !== id), data];
       });
     }
     setWorkerState([]);
-    for (const worker of workerList) {
+
+    const workerPromises = workerList.map(async (worker) => {
       try {
         if (worker.url.endsWith("/")) {
           updateWorker(worker.id, {
@@ -67,13 +71,13 @@ export function WorkerTestPart() {
             status: "error",
             error: new Error("URL ends with slash"),
           });
-          continue;
+          return;
         }
-        await mwFetch(worker.url, {
-          query: {
-            destination: "https://postman-echo.com/get",
-          },
-        });
+        await singularProxiedFetch(
+          worker.url,
+          "https://postman-echo.com/get",
+          {},
+        );
         updateWorker(worker.id, {
           id: worker.id,
           status: "success",
@@ -85,7 +89,10 @@ export function WorkerTestPart() {
           error: err as Error,
         });
       }
-    }
+    });
+
+    await Promise.all(workerPromises);
+    setTimeout(() => setButtonDisabled(false), 5000);
   }, [workerList, setWorkerState]);
 
   return (
@@ -94,7 +101,7 @@ export function WorkerTestPart() {
       <p className="mb-8 mt-2">{workerList.length} worker(s) registered</p>
       <Box>
         {workerList.map((v, i) => {
-          const s = workerState.find((segment) => segment.id);
+          const s = workerState.find((segment) => segment.id === v.id);
           const name = `Worker ${i + 1}`;
           if (!s) return <WorkerItem name={name} key={v.id} />;
           if (s.status === "error")
@@ -112,7 +119,12 @@ export function WorkerTestPart() {
         })}
         <Divider />
         <div className="flex justify-end">
-          <Button theme="purple" loading={testState.loading} onClick={runTests}>
+          <Button
+            theme="purple"
+            loading={testState.loading}
+            onClick={buttonDisabled ? undefined : runTests}
+            disabled={buttonDisabled}
+          >
             Test workers
           </Button>
         </div>

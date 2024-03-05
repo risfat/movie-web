@@ -11,22 +11,32 @@ interface BannerInstance {
 interface BannerStore {
   banners: BannerInstance[];
   isOnline: boolean;
+  isTurnstile: boolean;
   location: string | null;
+  ignoredBannerIds: string[];
   updateHeight(id: string, height: number): void;
   showBanner(id: string): void;
-  hideBanner(id: string): void;
+  hideBanner(id: string, force?: boolean): void;
   setLocation(loc: string | null): void;
   updateOnline(isOnline: boolean): void;
+  updateTurnstile(isTurnstile: boolean): void;
 }
 
 export const useBannerStore = create(
   immer<BannerStore>((set) => ({
     banners: [],
     isOnline: true,
+    isTurnstile: false,
     location: null,
+    ignoredBannerIds: [],
     updateOnline(isOnline) {
       set((s) => {
         s.isOnline = isOnline;
+      });
+    },
+    updateTurnstile(isTurnstile) {
+      set((s) => {
+        s.isTurnstile = isTurnstile;
       });
     },
     setLocation(loc) {
@@ -37,14 +47,16 @@ export const useBannerStore = create(
     showBanner(id) {
       set((s) => {
         if (s.banners.find((v) => v.id === id)) return;
+        if (s.ignoredBannerIds.includes(id)) return;
         s.banners.push({
           id,
           height: 0,
         });
       });
     },
-    hideBanner(id) {
+    hideBanner(id, force = false) {
       set((s) => {
+        if (force) s.ignoredBannerIds.push(id);
         s.banners = s.banners.filter((v) => v.id !== id);
       });
     },
@@ -54,7 +66,7 @@ export const useBannerStore = create(
         if (found) found.height = height;
       });
     },
-  }))
+  })),
 );
 
 export function useBannerSize(location?: string) {

@@ -14,16 +14,16 @@ import { useAuthStore } from "@/stores/auth";
 
 const rem = 16;
 
-function SecureBadge(props: { url: string }) {
+function SecureBadge(props: { url: string | null }) {
   const { t } = useTranslation();
-  const secure = props.url.startsWith("https://");
+  const secure = props.url ? props.url.startsWith("https://") : false;
   return (
     <div className="flex items-center gap-1 -mx-1 ml-3 px-1 rounded bg-largeCard-background font-bold">
       <Icon icon={secure ? Icons.LOCK : Icons.UNLOCK} />
       {t(
         secure
           ? "settings.sidebar.info.secure"
-          : "settings.sidebar.info.insecure"
+          : "settings.sidebar.info.insecure",
       )}
     </div>
   );
@@ -44,9 +44,9 @@ export function SidebarPart() {
       icon: Icons.USER,
     },
     {
-      textKey: "settings.locale.title",
-      id: "settings-locale",
-      icon: Icons.BOOKMARK,
+      textKey: "settings.preferences.title",
+      id: "settings-preferences",
+      icon: Icons.SETTINGS,
     },
     {
       textKey: "settings.appearance.title",
@@ -54,7 +54,7 @@ export function SidebarPart() {
       icon: Icons.BRUSH,
     },
     {
-      textKey: "settings.captions.title",
+      textKey: "settings.subtitles.title",
       id: "settings-captions",
       icon: Icons.CAPTIONS,
     },
@@ -68,6 +68,7 @@ export function SidebarPart() {
   const backendUrl = useBackendUrl();
 
   const backendMeta = useAsync(async () => {
+    if (!backendUrl) return;
     return getBackendMeta(backendUrl);
   }, [backendUrl]);
 
@@ -82,17 +83,20 @@ export function SidebarPart() {
           const el = document.getElementById(link.id);
           if (!el) return { distance: Infinity, link: link.id };
           const rect = el.getBoundingClientRect();
-
           const distanceTop = Math.abs(centerTarget - rect.top);
           const distanceBottom = Math.abs(centerTarget - rect.bottom);
-
           const distance = Math.min(distanceBottom, distanceTop);
           return { distance, link: link.id };
         })
         .sort((a, b) => a.distance - b.distance);
 
-      // shortest distance to the part of the screen we want is the active link
-      setActiveLink(viewList[0]?.link ?? "");
+      // Check if user has scrolled past the bottom of the page
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        setActiveLink(settingLinks[settingLinks.length - 1].id);
+      } else {
+        // shortest distance to the part of the screen we want is the active link
+        setActiveLink(viewList[0]?.link ?? "");
+      }
     }
     document.addEventListener("scroll", recheck);
     recheck();
@@ -122,7 +126,7 @@ export function SidebarPart() {
         boundaryElement=".sidebar-boundary"
       >
         <div className="hidden lg:block">
-          <SidebarSection title="Settings">
+          <SidebarSection title={t("global.pages.settings")}>
             {settingLinks.map((v) => (
               <SidebarLink
                 icon={v.icon}
@@ -156,7 +160,7 @@ export function SidebarPart() {
                 <SecureBadge url={backendUrl} />
               </div>
               <p className="text-white">
-                {backendUrl.replace(/https?:\/\//, "")}
+                {backendUrl?.replace(/https?:\/\//, "") ?? "—"}
               </p>
             </div>
 

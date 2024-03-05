@@ -7,18 +7,20 @@ export interface SettingsInput {
   applicationLanguage?: string;
   applicationTheme?: string | null;
   defaultSubtitleLanguage?: string;
+  proxyUrls?: string[] | null;
 }
 
 export interface SettingsResponse {
   applicationTheme?: string | null;
   applicationLanguage?: string | null;
   defaultSubtitleLanguage?: string | null;
+  proxyUrls?: string[] | null;
 }
 
 export function updateSettings(
   url: string,
   account: AccountWithToken,
-  settings: SettingsInput
+  settings: SettingsInput,
 ) {
   return ofetch<SettingsResponse>(`/users/${account.userId}/settings`, {
     method: "PUT",
