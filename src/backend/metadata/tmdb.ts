@@ -10,12 +10,14 @@ import {
   TMDBEpisodeShort,
   TMDBMediaResult,
   TMDBMovieData,
+  TMDBMovieListResponse,
   TMDBMovieSearchResult,
   TMDBSearchResult,
   TMDBSeason,
   TMDBSeasonMetaResult,
   TMDBShowData,
   TMDBShowSearchResult,
+  TMDBTVSeriesListResponse,
 } from "./types/tmdb";
 import { mwFetch } from "../helpers/fetch";
 
@@ -175,6 +177,104 @@ export async function multiSearch(
       r.media_type === TMDBContentTypes.TV
   );
   return results;
+}
+
+// The function to fetch the latest movies
+export async function getTopRatedMovies(
+  page = 1
+): Promise<TMDBMovieListResponse> {
+  try {
+    // Call the TMDB API endpoint for fetching the latest movies
+    const data = await get<TMDBMovieListResponse>("/movie/top_rated", {
+      language: "en-US",
+      page, // Adjust the page as needed
+    });
+
+    // Return the array of latest movies
+    return data;
+  } catch (error) {
+    console.error("Error fetching latest movies from TMDB:", error);
+    throw error; // You can handle the error according to your needs
+  }
+}
+
+// Function to fetch popular movies
+export async function getPopularMovies(
+  page = 1
+): Promise<TMDBMovieListResponse> {
+  try {
+    // Call the TMDB API endpoint for fetching popular movies
+    const data = await get<TMDBMovieListResponse>("/movie/popular", {
+      language: "en-US",
+      page, // Use the provided page number
+    });
+
+    // Return the response containing popular movies
+    return data;
+  } catch (error) {
+    console.error(
+      `Error fetching popular movies from TMDB (/movie/popular):`,
+      error
+    );
+    throw error; // You can handle the error according to your needs
+  }
+}
+
+// The function to fetch the latest Series
+export async function getOnAirSeries(
+  page = 1
+): Promise<TMDBTVSeriesListResponse> {
+  try {
+    // Call the TMDB API endpoint for fetching the latest TV series
+    const data = await get<TMDBTVSeriesListResponse>("/tv/on_the_air", {
+      language: "en-US",
+      page, // Adjust the page as needed
+    });
+
+    // Return the array of latest TV series
+    return data;
+  } catch (error) {
+    console.error("Error fetching latest series from TMDB:", error);
+    throw error; // You can handle the error according to your needs
+  }
+}
+
+// Function to fetch popular TV series
+export async function getPopularTVSeries(
+  page = 1
+): Promise<TMDBTVSeriesListResponse> {
+  try {
+    // Call the TMDB API endpoint for fetching popular TV series
+    const data = await get<TMDBTVSeriesListResponse>("/tv/popular", {
+      language: "en-US",
+      page, // Adjust the page as needed
+    });
+
+    // Return the response containing popular TV series
+    return data;
+  } catch (error) {
+    console.error("Error fetching popular TV series from TMDB:", error);
+    throw error; // You can handle the error according to your needs
+  }
+}
+
+// Function to fetch Top Rated TV series
+export async function getTopRatedTVSeries(
+  page = 1
+): Promise<TMDBTVSeriesListResponse> {
+  try {
+    // Call the TMDB API endpoint for fetching popular TV series
+    const data = await get<TMDBTVSeriesListResponse>("/tv/top_rated", {
+      language: "en-US",
+      page, // Adjust the page as needed
+    });
+
+    // Return the response containing popular TV series
+    return data;
+  } catch (error) {
+    console.error("Error fetching popular TV series from TMDB:", error);
+    throw error; // You can handle the error according to your needs
+  }
 }
 
 export async function generateQuickSearchMediaUrl(

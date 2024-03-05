@@ -12,6 +12,12 @@ import { WatchingPart } from "@/pages/parts/home/WatchingPart";
 import { SearchListPart } from "@/pages/parts/search/SearchListPart";
 import { SearchLoadingPart } from "@/pages/parts/search/SearchLoadingPart";
 
+import { LatestSeriesPart } from "./parts/home/LatestSeriesPart";
+import { PopularMoviesPart } from "./parts/home/PopularMoviesPart";
+import { PopularSeriesPart } from "./parts/home/PopularSeriesPart";
+import { TopRatedMoviesPart } from "./parts/home/TopRatedMoviesPart";
+import { TopRatedSeriesPart } from "./parts/home/TopRatedSeriesPart";
+
 function useSearch(search: string) {
   const [searching, setSearching] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -55,6 +61,20 @@ export function HomePage() {
           <>
             <BookmarksPart />
             <WatchingPart />
+            <br />
+            <PopularMoviesPart />
+            <br />
+            <br />
+            <LatestSeriesPart />
+            <br />
+            <br />
+            <TopRatedMoviesPart />
+            <br />
+            <br />
+            <PopularSeriesPart />
+            <br />
+            <br />
+            <TopRatedSeriesPart />
           </>
         )}
       </WideContainer>
