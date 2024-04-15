@@ -437,7 +437,7 @@
           "confirmButton": "Elimina el compte",
           "confirmDescription": "Segur que voleu eliminar el compte? Es perdran totes les dades!",
           "confirmTitle": "Segur?",
-          "text": "esta acció és irreversible. Totes les dades s'eliminaran i no es podrà recuperar res.",
+          "text": "Esta acció és irreversible. Totes les dades s'eliminaran i no es podrà recuperar res.",
           "title": "Elimina el compte"
         },
         "title": "Accions"
@@ -536,6 +536,7 @@
       }
     },
     "subtitles": {
+      "backgroundBlurLabel": "Difuminat del fons",
       "backgroundLabel": "Opacitat del fons",
       "colorLabel": "Color",
       "previewQuote": "No he de tindre por. La por és l'assassina de la ment.",
