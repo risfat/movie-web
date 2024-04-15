@@ -103,9 +103,9 @@ export function Footer() {
             <Dmca />
           </div>
         </div>
-        <div className="hidden items-center justify-end md:flex -mr-3">
+        {/* <div className="hidden items-center justify-end md:flex -mr-3">
           <Dmca />
-        </div>
+        </div> */}
       </WideContainer>
     </footer>
   );
