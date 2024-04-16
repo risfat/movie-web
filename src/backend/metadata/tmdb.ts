@@ -155,6 +155,12 @@ const tmdbHeaders = {
   Authorization: `Bearer ${apiKey}`,
 };
 
+function abortOnTimeout(timeout: number): AbortSignal {
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), timeout);
+  return controller.signal;
+}
+
 async function get<T>(url: string, params?: object): Promise<T> {
   if (!apiKey) throw new Error("TMDB API key not set");
   try {
@@ -164,7 +170,7 @@ async function get<T>(url: string, params?: object): Promise<T> {
       params: {
         ...params,
       },
-      signal: AbortSignal.timeout(5000),
+      signal: abortOnTimeout(5000),
     });
   } catch (err) {
     return mwFetch<T>(encodeURI(url), {
@@ -173,7 +179,7 @@ async function get<T>(url: string, params?: object): Promise<T> {
       params: {
         ...params,
       },
-      signal: AbortSignal.timeout(30000),
+      signal: abortOnTimeout(30000),
     });
   }
 }
